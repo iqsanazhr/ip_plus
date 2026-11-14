@@ -164,6 +164,42 @@ class TestRealPhoneAndRecording(unittest.TestCase):
         self.assertEqual(saved_file.read_bytes(), dummy_bytes)
         self.assertTrue(res["filename"].endswith(".mp4"))
 
+    def test_patch_webm_duration_ebml(self):
+        from handset.server import patch_webm_duration
+        import struct
+
+        # Minimal synthetic WebM stream with Info segment
+        # Info header: 0x1549A966, VINT: 0x85 (5 bytes payload)
+        raw = b"\x1a\x45\xdf\xa3" + (b"\x00" * 30) + b"\x15\x49\xa9\x66\x85ABCDE" + (b"\x00" * 30)
+        patched = patch_webm_duration(raw, duration_ms=8500.0)
+
+        # Check that EBML Duration tag 0x4489 was injected
+        dur_tag = bytes([0x44, 0x89])
+        self.assertIn(dur_tag, patched)
+        idx = patched.find(dur_tag)
+        val = struct.unpack(">d", patched[idx + 3 : idx + 11])[0]
+        self.assertEqual(val, 8500.0)
+
+    def test_save_recording_patches_webm_duration(self):
+        mock_win = MockWindow()
+        api = WindowApi(mock_win)
+
+        rec_dir = Path(self._temp_dir.name) / "recordings_webm_patched"
+        save_user_settings({"recordingFolder": str(rec_dir)})
+
+        raw_webm = b"\x1a\x45\xdf\xa3" + (b"\x00" * 30) + b"\x15\x49\xa9\x66\x85ABCDE" + (b"\x00" * 30)
+        b64_content = base64.b64encode(raw_webm).decode("ascii")
+
+        res = api.save_recording(b64_content, "video/webm", duration_ms=14200.0)
+        self.assertTrue(res.get("ok"))
+        saved_file = Path(res["path"])
+        self.assertTrue(saved_file.exists())
+        file_bytes = saved_file.read_bytes()
+
+        # Check injected duration tag
+        dur_tag = bytes([0x44, 0x89])
+        self.assertIn(dur_tag, file_bytes)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -601,6 +601,84 @@ def _get_current_wallpaper_file_and_signature() -> tuple[Path | None, str]:
         return None, ""
 
 
+def patch_webm_duration(data: bytes, duration_ms: float = 0.0) -> bytes:
+    """Inject missing EBML Duration element (0x4489) into WebM Segment Info header.
+
+    Chromium's MediaRecorder writes streaming WebM files with missing Duration metadata,
+    which causes Windows Media Player and Movies & TV to treat recordings as indefinite live streams
+    with incomplete/broken timeline scrubbers. This patch restores the standard duration element.
+    """
+    if not data or len(data) < 60:
+        return data
+
+    try:
+        import struct
+
+        info_id = bytes([0x15, 0x49, 0xA9, 0x66])
+        info_pos = data.find(info_id)
+        if info_pos == -1:
+            return data
+
+        idx = info_pos + 4
+        if idx >= len(data):
+            return data
+        b = data[idx]
+        mask = 0x80
+        vint_len = 1
+        while not (b & mask) and vint_len < 8:
+            mask >>= 1
+            vint_len += 1
+
+        info_payload_size = b & (mask - 1)
+        for i in range(1, vint_len):
+            if idx + i >= len(data):
+                return data
+            info_payload_size = (info_payload_size << 8) | data[idx + i]
+
+        info_payload_start = idx + vint_len
+        info_payload_end = info_payload_start + info_payload_size
+        if info_payload_end > len(data):
+            return data
+
+        info_payload = data[info_payload_start:info_payload_end]
+        dur_tag = bytes([0x44, 0x89])
+        if dur_tag in info_payload:
+            return data
+
+        dur_val = float(duration_ms) if duration_ms and duration_ms > 0 else 0.0
+        if dur_val <= 0:
+            cluster_id = bytes([0x1F, 0x43, 0xB6, 0x75])
+            timecode_id = bytes([0xE7])
+            pos = 0
+            last_tc = 0
+            while True:
+                p = data.find(cluster_id, pos)
+                if p == -1:
+                    break
+                tp = data.find(timecode_id, p, min(p + 60, len(data)))
+                if tp != -1 and tp + 2 < len(data):
+                    v_size = data[tp + 1] & 0x7F
+                    if tp + 2 + v_size <= len(data):
+                        tc = int.from_bytes(data[tp + 2 : tp + 2 + v_size], "big")
+                        last_tc = max(last_tc, tc)
+                pos = p + 4
+            dur_val = float(last_tc + 100) if last_tc > 0 else 1000.0
+
+        dur_element = dur_tag + bytes([0x88]) + struct.pack(">d", dur_val)
+        new_info_payload = dur_element + info_payload
+        new_size = len(new_info_payload)
+        if new_size < 127:
+            new_vint = bytes([0x80 | new_size])
+        elif new_size < 16383:
+            new_vint = bytes([0x40 | (new_size >> 8), new_size & 0xFF])
+        else:
+            new_vint = bytes([0x20 | (new_size >> 16), (new_size >> 8) & 0xFF, new_size & 0xFF])
+
+        return data[:info_pos + 4] + new_vint + new_info_payload + data[info_payload_end:]
+    except Exception:
+        return data
+
+
 class Handler(BaseHTTPRequestHandler):
     def end_headers(self) -> None:
         self.send_header("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0")
@@ -758,6 +836,7 @@ class Handler(BaseHTTPRequestHandler):
         if path == "/api/recording/save":
             b64_data = payload.get("data")
             mime_type = payload.get("mimeType", "video/webm")
+            dur_ms = float(payload.get("duration", 0) or 0)
             if not b64_data:
                 self._json({"ok": False, "error": "No recording data provided"})
                 return
@@ -776,6 +855,8 @@ class Handler(BaseHTTPRequestHandler):
                 if "," in clean_data:
                     clean_data = clean_data.split(",", 1)[1]
                 file_bytes = base64.b64decode(clean_data)
+                if ext == ".webm":
+                    file_bytes = patch_webm_duration(file_bytes, dur_ms)
                 target_file.write_bytes(file_bytes)
                 self._json({
                     "ok": True,

@@ -779,14 +779,14 @@ class WindowApi:
         except Exception as e:
             return {"ok": False, "error": str(e)}
 
-    def save_recording(self, base64_data: str, mime_type: str = "video/webm") -> dict:
+    def save_recording(self, base64_data: str, mime_type: str = "video/webm", duration_ms: float = 0.0) -> dict:
         """Save captured canvas video blob to the configured recording folder."""
         if not base64_data:
             return {"ok": False, "error": "No data"}
         try:
             import base64
             from datetime import datetime
-            from handset.server import load_user_settings
+            from handset.server import load_user_settings, patch_webm_duration
 
             st = load_user_settings()
             folder = st.get("recordingFolder") or str(Path.home() / "Videos" / "ip+")
@@ -802,6 +802,8 @@ class WindowApi:
             if "," in clean_data:
                 clean_data = clean_data.split(",", 1)[1]
             file_bytes = base64.b64decode(clean_data)
+            if ext == ".webm":
+                file_bytes = patch_webm_duration(file_bytes, float(duration_ms or 0))
             file_path.write_bytes(file_bytes)
 
             return {

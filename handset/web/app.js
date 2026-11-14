@@ -966,16 +966,16 @@ function toggleScreenRecording() {
 }
 window.toggleScreenRecording = toggleScreenRecording;
 
-async function handleSaveRecordingData(base64Data, mimeType) {
+async function handleSaveRecordingData(base64Data, mimeType, durationMs = 0) {
   try {
     let result = null;
     if (window.pywebview?.api?.save_recording) {
-      result = await window.pywebview.api.save_recording(base64Data, mimeType);
+      result = await window.pywebview.api.save_recording(base64Data, mimeType, durationMs);
     } else {
       const res = await fetch("/api/recording/save", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ data: base64Data, mimeType: mimeType })
+        body: JSON.stringify({ data: base64Data, mimeType: mimeType, duration: durationMs })
       });
       if (res.ok) result = await res.json();
     }
@@ -3173,7 +3173,7 @@ window.addEventListener("message", (e) => {
   }
   if (e.data && e.data.type === "recording-data") {
     updateRecordScreenUI(false);
-    handleSaveRecordingData(e.data.data, e.data.mimeType);
+    handleSaveRecordingData(e.data.data, e.data.mimeType, e.data.duration);
   }
   if (e.data && e.data.type === "recording-error") {
     updateRecordScreenUI(false);
