@@ -11,14 +11,20 @@ body.is-real-phone,
   overflow: hidden !important;
 }
 
+html.is-real-phone .app-bar,
 .app.is-real-phone .app-bar,
+html.is-real-phone .quick-nav,
 .app.is-real-phone .quick-nav,
+html.is-real-phone .stage-note,
 .app.is-real-phone .stage-note {
   display: none !important;
 }
 
+html.is-real-phone .main-body,
 .app.is-real-phone .main-body,
+html.is-real-phone .display-col,
 .app.is-real-phone .display-col,
+html.is-real-phone .workspace,
 .app.is-real-phone .workspace {
   width: 100vw !important;
   height: 100vh !important;
@@ -33,6 +39,7 @@ body.is-real-phone,
   overflow: hidden !important;
 }
 
+html.is-real-phone #phone-shell,
 .app.is-real-phone #phone-shell {
   position: relative !important;
   width: 100vw !important;

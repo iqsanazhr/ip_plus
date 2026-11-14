@@ -902,17 +902,8 @@ function applyTheme(theme) {
 }
 
 
-let _toastTimer = null;
 function showToastNotification(text, duration = 2200) {
-  const el = document.getElementById("toast-notification");
-  if (!el) return;
-  el.textContent = text;
-  el.classList.add("is-visible");
-  el.style.pointerEvents = "none";
-  if (_toastTimer) clearTimeout(_toastTimer);
-  _toastTimer = setTimeout(() => {
-    el.classList.remove("is-visible");
-  }, duration);
+  showToast(text, duration);
 }
 window.showToastNotification = showToastNotification;
 
