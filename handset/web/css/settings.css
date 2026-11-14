@@ -648,6 +648,18 @@ body[data-theme="dark"] {
   font-size: 11px;
 }
 
+.ctl-icon {
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+
 .ctl-accent, .ctl-primary {
   background: var(--accent);
   border-color: var(--accent);

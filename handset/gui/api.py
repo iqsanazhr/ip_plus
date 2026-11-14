@@ -26,6 +26,7 @@ from .dwm import (
     reapply_dwm_rounded_corners,
     apply_phone_window_region,
     center_window_on_screen,
+    apply_window_icon,
 )
 from .real_phone import calculate_real_phone_dimensions
 
@@ -136,6 +137,7 @@ class WindowApi:
                     w = getattr(self._window, "width", PORTRAIT_WIDTH)
                     h_val = getattr(self._window, "height", PORTRAIT_HEIGHT)
                     center_window_on_screen(h, w, h_val)
+                    apply_window_icon(h)
                     self._schedule_reapply_corners()
                     break
                 time.sleep(0.04)
@@ -482,6 +484,7 @@ class WindowApi:
                         if h and sys.platform == "win32":
                             try:
                                 center_window_on_screen(h, win_w, win_h)
+                                apply_window_icon(h)
                                 ctypes.windll.user32.ShowWindow(wintypes.HWND(h), 9)  # SW_RESTORE
                                 ctypes.windll.user32.SetForegroundWindow(wintypes.HWND(h))
                                 dwmapi = getattr(ctypes.windll, "dwmapi", None)

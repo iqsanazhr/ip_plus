@@ -7,7 +7,14 @@ import sys
 import time
 
 from .config import DEFAULT_HOST, DEFAULT_PORT, REPO_ROOT
-from .dwm import apply_dwm_transparency, reapply_dwm_rounded_corners, find_webview_controls, apply_phone_window_region
+from .dwm import (
+    apply_dwm_transparency,
+    reapply_dwm_rounded_corners,
+    find_webview_controls,
+    apply_phone_window_region,
+    set_process_app_user_model_id,
+    apply_window_icon,
+)
 from .real_phone import calculate_real_phone_dimensions
 from .process import (
     ensure_backend_server_running,
@@ -42,6 +49,7 @@ def _auto_unblock_zone_identifiers() -> None:
 def main() -> None:
     """Main launcher entry point for the native GUI window."""
     _auto_unblock_zone_identifiers()
+    set_process_app_user_model_id("iqsanazhr.ipplus.desktop.1.0")
 
     host = DEFAULT_HOST
     port = DEFAULT_PORT
@@ -75,12 +83,18 @@ def main() -> None:
         print("[iPhoneLink Tray] Tray init failed (non-critical):", e)
 
     storage_path = resolve_webview_storage_path()
+    icon_path = REPO_ROOT / "assets" / "ip_plus.ico"
+    if not icon_path.is_file():
+        icon_path = REPO_ROOT / "assets" / "iphone_link.ico"
+    icon_arg = str(icon_path.resolve()) if icon_path.is_file() else None
+
     try:
         import webview
         webview.start(
             debug=False,
             private_mode=False,
             storage_path=storage_path,
+            icon=icon_arg,
         )
     finally:
         shutdown_backend_server()

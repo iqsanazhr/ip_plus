@@ -137,6 +137,12 @@ function applyRealPhoneMode(active, notify = true) {
     }
   } catch (_) { }
 
+  try {
+    if (typeof postJson === "function") {
+      postJson("/api/settings", { realPhoneMode: isRealPhoneMode }).catch(() => {});
+    }
+  } catch (_) { }
+
   setTimeout(() => {
     screenView?.contentWindow?.postMessage({ type: "resize" }, "*");
     window.pywebview?.api?.reapply_window_region?.();
@@ -693,6 +699,14 @@ async function fetchUserSettings() {
     }
     if (res.theme) {
       try { applyTheme(res.theme); } catch (_) { }
+    }
+    if (res.realPhoneMode !== undefined) {
+      try {
+        const shouldBeRealPhone = Boolean(res.realPhoneMode);
+        if (shouldBeRealPhone !== isRealPhoneMode) {
+          applyRealPhoneMode(shouldBeRealPhone, false);
+        }
+      } catch (_) { }
     }
     if (res.trackpadSpeed !== undefined) {
       try { applyTrackpadSpeed(res.trackpadSpeed, true); } catch (_) { }

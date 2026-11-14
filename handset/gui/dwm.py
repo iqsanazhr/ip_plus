@@ -4,7 +4,9 @@ from __future__ import annotations
 
 import ctypes
 from ctypes import wintypes, c_int, c_void_p, c_size_t, byref, sizeof, Structure
+import os
 import sys
+from pathlib import Path
 
 
 class MARGINS(Structure):
@@ -282,4 +284,86 @@ def center_window_on_screen(hwnd: int | None, width: int = 0, height: int = 0) -
         user32.SetWindowPos(wh, 0, cx, cy, win_w, win_h, 0x0004 | 0x0040)
     except Exception as e:
         print("[iPhoneLink DWM] Error centering window:", e)
+
+
+def set_process_app_user_model_id(app_id: str = "iqsanazhr.ipplus.desktop.1.0") -> bool:
+    """Set explicit Application User Model ID (AUMID) so Windows taskbar groups windows under ip+ rather than python.exe."""
+    if sys.platform != "win32":
+        return False
+    try:
+        shell32 = getattr(ctypes.windll, "shell32", None)
+        if shell32 and hasattr(shell32, "SetCurrentProcessExplicitAppUserModelID"):
+            r = shell32.SetCurrentProcessExplicitAppUserModelID(str(app_id))
+            return r == 0
+    except Exception:
+        pass
+    return False
+
+
+def apply_window_icon(hwnd: int, icon_path: Path | str | None = None) -> bool:
+    """Apply native 32x32 and 16x16 HICON to window HWND via WM_SETICON and WinForms Form.Icon."""
+    if not hwnd or sys.platform != "win32":
+        return False
+    try:
+        user32 = getattr(ctypes.windll, "user32", None)
+        if not user32:
+            return False
+
+        try:
+            hwnd_val = int(hwnd)
+            if hwnd_val <= 0:
+                return False
+            wh = wintypes.HWND(hwnd_val)
+        except Exception:
+            return False
+
+        try:
+            if not user32.IsWindow(wh):
+                return False
+        except Exception:
+            return False
+
+        if icon_path is None:
+            from .config import REPO_ROOT
+            icon_path = REPO_ROOT / "assets" / "ip_plus.ico"
+            if not icon_path.is_file():
+                icon_path = REPO_ROOT / "assets" / "iphone_link.ico"
+
+        icon_str = str(Path(icon_path).resolve())
+        if not os.path.isfile(icon_str):
+            return False
+
+        IMAGE_ICON = 1
+        LR_LOADFROMFILE = 0x0010
+        WM_SETICON = 0x0080
+        ICON_SMALL = 0
+        ICON_BIG = 1
+
+        # 1. 32x32 icon for Taskbar thumbnail & Alt+Tab switcher
+        hicon_big = user32.LoadImageW(None, icon_str, IMAGE_ICON, 32, 32, LR_LOADFROMFILE)
+        if hicon_big:
+            user32.SendMessageW(wh, WM_SETICON, ICON_BIG, hicon_big)
+
+        # 2. 16x16 icon for titlebar & system menu
+        hicon_small = user32.LoadImageW(None, icon_str, IMAGE_ICON, 16, 16, LR_LOADFROMFILE)
+        if hicon_small:
+            user32.SendMessageW(wh, WM_SETICON, ICON_SMALL, hicon_small)
+
+        # 3. Synchronize WinForms Form.Icon if pythonnet/BrowserView is loaded
+        try:
+            from webview.platforms.winforms import BrowserView
+            for form in list(BrowserView.instances.values()):
+                if form and hasattr(form, "Handle"):
+                    form_hwnd = int(form.Handle.ToInt64() if hasattr(form.Handle, "ToInt64") else int(form.Handle))
+                    if form_hwnd == hwnd:
+                        from System.Drawing import Icon as DotNetIcon
+                        form.Icon = DotNetIcon(icon_str)
+                        break
+        except Exception:
+            pass
+
+        return True
+    except Exception as e:
+        return False
+
 

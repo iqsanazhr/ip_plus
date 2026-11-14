@@ -175,6 +175,25 @@
 
   // ==================== Settings Controls & Data Binding ====================
   async function initSettingsControls() {
+    // Synchronize initial state from backend persistent variables
+    try {
+      const be = await apiGet("/api/settings");
+      if (be && typeof be === "object") {
+        if (be.theme) localStorage.setItem("pane-theme", be.theme);
+        if (be.realPhoneMode !== undefined) localStorage.setItem("pane-real-phone-mode", String(be.realPhoneMode));
+        if (be.resolution) localStorage.setItem("pane-resolution", be.resolution);
+        if (be.sharpness) localStorage.setItem("pane-sharpness", be.sharpness);
+        if (be.fitMode) localStorage.setItem("pane-fit-mode", be.fitMode);
+        if (be.autoRotateGame !== undefined) localStorage.setItem("pane-auto-rotate-game", be.autoRotateGame ? "on" : "off");
+        else if (be.autoRotate !== undefined) localStorage.setItem("pane-auto-rotate-game", be.autoRotate ? "on" : "off");
+        if (be.trackpadSpeed !== undefined) localStorage.setItem("pane-trackpad-speed", String(be.trackpadSpeed));
+        if (be.crossPlatformShortcuts !== undefined) localStorage.setItem("pane-shortcuts", String(be.crossPlatformShortcuts));
+        if (be.pastePcClipboard !== undefined) localStorage.setItem("pane-paste-pc", String(be.pastePcClipboard));
+        if (be.recordingFolder) localStorage.setItem("pane-recording-folder", be.recordingFolder);
+        if (be.crop && typeof be.crop === "object") localStorage.setItem("pane-crop-edges", JSON.stringify(be.crop));
+      }
+    } catch (_) {}
+
     // 1. Theme (Dark / Light)
     const savedTheme = localStorage.getItem("pane-theme") || "dark";
     applyTheme(savedTheme);
@@ -186,6 +205,7 @@
         applyTheme(choice);
         localStorage.setItem("pane-theme", choice);
         broadcastChange("theme-changed", choice);
+        apiPost("/api/settings", { theme: choice });
         if (window.pywebview?.api?.set_theme) {
           window.pywebview.api.set_theme(choice);
         }
@@ -201,6 +221,7 @@
         const checked = e.target.checked;
         localStorage.setItem("pane-real-phone-mode", String(checked));
         broadcastChange("real-phone-changed", checked);
+        apiPost("/api/settings", { realPhoneMode: checked });
         if (window.pywebview?.api?.set_real_phone_mode) {
           window.pywebview.api.set_real_phone_mode(checked);
         }
@@ -214,7 +235,7 @@
         if (window.pywebview?.api?.reset_real_phone_scale) {
           await window.pywebview.api.reset_real_phone_scale();
         }
-        showToast("Ukuran Real Phone di-reset ke 100%");
+        showToast("Real Phone scale reset to 100%");
       });
     }
 
@@ -377,22 +398,22 @@
             const res = await window.pywebview.api.choose_recording_folder();
             if (res && res.success && res.folder) {
               if (recordingFolderInput) recordingFolderInput.value = res.folder;
-              showToast("Folder rekaman berhasil diubah");
+              showToast("Recording folder updated successfully");
             }
           } else {
             const current = recordingFolderInput ? recordingFolderInput.value : "";
-            const newFolder = prompt("Masukkan path folder penyimpanan rekaman video:", current);
+            const newFolder = prompt("Enter screen recording folder path:", current);
             if (newFolder && newFolder.trim()) {
               const trimmed = newFolder.trim();
               const res = await apiPost("/api/recording/folder", { folder: trimmed });
               if (res && res.folder) {
                 if (recordingFolderInput) recordingFolderInput.value = res.folder;
-                showToast("Folder rekaman berhasil diubah");
+                showToast("Recording folder updated successfully");
               }
             }
           }
         } catch (err) {
-          showToast("Gagal memilih folder: " + err.message);
+          showToast("Failed to select folder: " + err.message);
         }
       });
     }
@@ -405,9 +426,9 @@
           } else {
             await apiPost("/api/recording/open", {});
           }
-          showToast("Membuka folder rekaman...");
+          showToast("Opening recording folder...");
         } catch (err) {
-          showToast("Gagal membuka folder: " + err.message);
+          showToast("Failed to open folder: " + err.message);
         }
       });
     }

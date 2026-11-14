@@ -99,7 +99,31 @@ SETTINGS_FILE = get_app_root() / "user_settings.json"
 
 
 def get_settings_file_path() -> Path:
-    return get_app_root() / "user_settings.json"
+    """Return the active user_settings.json path with portable-first and AppData fallback."""
+    try:
+        app_root = get_app_root()
+        local_candidate = app_root / "user_settings.json"
+        if local_candidate.is_file():
+            with open(local_candidate, "a"):
+                pass
+            return local_candidate
+        test_file = app_root / ".write_test"
+        try:
+            test_file.touch()
+            test_file.unlink()
+            return local_candidate
+        except Exception:
+            pass
+    except Exception:
+        pass
+
+    try:
+        appdata = os.environ.get("APPDATA") or str(Path.home() / "AppData" / "Roaming")
+        user_dir = Path(appdata) / "ip+"
+        user_dir.mkdir(parents=True, exist_ok=True)
+        return user_dir / "user_settings.json"
+    except Exception:
+        return get_app_root() / "user_settings.json"
 
 
 def get_folder_instance_id(app_root: Path | None = None) -> str:
@@ -134,21 +158,37 @@ _HOP_BY_HOP = frozenset(
 _CLIENT_GONE = (BrokenPipeError, ConnectionAbortedError, ConnectionResetError)
 
 DEFAULT_SETTINGS = {
+    # Appearance & Window
+    "theme": "dark",                     # "dark" | "light"
+    "realPhoneMode": False,              # True | False (Alt+P Floating Phone Chassis)
+    "realPhoneScaleRatio": 1.0,          # 0.3 - 3.0 scale multiplier
+    "realPhonePortraitHeight": 820,      # Height in pixels for portrait
+    "realPhoneLandscapeHeight": 430,     # Height in pixels for landscape
+    "fitMode": "autofit",                # "autofit" | "fill" | "contain"
     "crop": {"top": 0, "bottom": 0, "left": 0, "right": 0},
-    "fitMode": "autofit",
-    "resolution": "1080p",
-    "sharpness": "crisp",
-    "theme": "dark",
-    "audioSinkEnabled": False,
-    "audioVolume": 100,
-    "trackpadSpeed": 100,
-    "crossPlatformShortcuts": True,
-    "pastePcClipboard": True,
-    "autoRotate": False,
-    "recordingFolder": str(Path.home() / "Videos" / "ip+"),
-    "realPhoneScaleRatio": 1.0,
-    "realPhonePortraitHeight": 820,
-    "realPhoneLandscapeHeight": 430,
+
+    # Display, Stream & Quality
+    "resolution": "1080p",               # "720p" | "1080p" | "2k" | "3k" | "4k" | "native"
+    "sharpness": "crisp",                # "standard" | "crisp"
+    "autoRotate": False,                 # Auto rotate on screen orientation change
+    "autoRotateGame": False,             # Landscape orientation switch for gaming
+
+    # Audio & Sound
+    "audioSinkEnabled": False,           # Forward iPhone audio to PC speakers
+    "audioVolume": 100,                  # 0 - 100 volume level
+
+    # Keyboard & Mouse Input
+    "trackpadSpeed": 100,                # 30 - 200 cursor trackpad speed %
+    "crossPlatformShortcuts": True,      # Translate Ctrl shortcuts to native iOS Cmd
+    "pastePcClipboard": True,            # Auto-paste PC clipboard text to active iOS field
+
+    # Recording & Media
+    "recordingFolder": str(Path.home() / "Videos" / "ip+"),  # Screen recording folder (Alt+R)
+    "recordingFps": 60,                  # Target recording framerate (60 fps)
+
+    # Device & Power
+    "autoConnectUsb": True,              # Auto start mirroring on USB connection
+    "keepAwake": True,                   # Keep iPhone awake while mirroring
 }
 
 def get_windows_clipboard_seq() -> int:
@@ -465,8 +505,35 @@ def save_user_settings(new_settings: dict) -> dict:
                 current["trackpadSpeed"] = max(30, min(200, int(v or 100)))
             except Exception:
                 current["trackpadSpeed"] = 100
-        elif k in ("crossPlatformShortcuts", "pastePcClipboard", "autoRotate"):
+        elif k in (
+            "crossPlatformShortcuts",
+            "pastePcClipboard",
+            "autoRotate",
+            "autoRotateGame",
+            "realPhoneMode",
+            "audioSinkEnabled",
+            "autoConnectUsb",
+            "keepAwake",
+        ):
             current[k] = bool(v)
+        elif k == "theme":
+            val = str(v).lower().strip()
+            if val in ("dark", "light"):
+                current["theme"] = val
+        elif k == "fitMode":
+            val = str(v).lower().strip()
+            if val in ("autofit", "fill", "contain"):
+                current["fitMode"] = val
+        elif k == "audioVolume":
+            try:
+                current["audioVolume"] = max(0, min(100, int(v)))
+            except Exception:
+                pass
+        elif k == "recordingFps":
+            try:
+                current["recordingFps"] = max(15, min(120, int(v)))
+            except Exception:
+                pass
         elif k == "resolution":
             val = str(v).lower().strip()
             if val in ("720p", "1080p", "2k", "1440p", "3k", "4k", "native"):
