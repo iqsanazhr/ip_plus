@@ -236,15 +236,15 @@ Proyek **ip+** merupakan hasil pengembangan, pembaruan, dan refaktorisasi terbuk
 1. **Sistem Operasi**: Windows 10 atau Windows 11 (64-bit).
 2. **Perangkat**: Apple iPhone yang menjalankan **iOS 27 saja** (eksklusif iOS 27, terverifikasi penuh pada iOS 27.0.1). Versi iOS selain 27 tidak didukung.
 3. **Kabel Koneksi**: Kabel data USB-to-Lightning atau USB-C ke PC.
-4. **Layanan Apple (Driver)**: Pastikan aplikasi **Apple Devices** (gratis di Microsoft Store) atau **iTunes for Windows** telah terpasang agar layanan konektivitas USB iPhone aktif di Windows.
+4. **Layanan Apple (Driver Otomatis)**: Installer `ip_plus_Setup_v1.0.0.exe` dan aplikasi `ip+` sekarang **otomatis mendeteksi dan memasang driver resmi Apple Mobile Device Support** via `winget` secara background! Jika di PC Anda belum ada driver Apple, cukup klik tombol *"⚡ Pasang Driver Apple Otomatis"* di dalam aplikasi atau biarkan installer memasangkannya untuk Anda.
 
 ---
 
 ### <img src="assets/icons/play.svg" width="18" height="18" align="center" /> Pilihan Instalasi
 
 #### Cara 1: Menggunakan Windows Installer (.EXE) — *Paling Mudah untuk Pengguna Umum*
-1. Unduh **`ip+_Setup_v1.0.0.exe`** dari tab [GitHub Releases](https://github.com/iqsanazhr/ip_plus/releases/latest).
-2. Jalankan berkas installer dan ikuti petunjuk pemasangan hingga selesai.
+1. Unduh **`ip_plus_Setup_v1.0.0.exe`** dari tab [GitHub Releases](https://github.com/iqsanazhr/ip_plus/releases/latest).
+2. Jalankan berkas installer dan ikuti petunjuk pemasangan hingga selesai (installer otomatis memasang driver Apple jika belum ada).
 3. Hubungkan iPhone ke PC via kabel USB, ketuk **"Percayai Komputer Ini"** (*Trust This Computer*) pada layar ponsel Anda.
 4. Buka **ip+** melalui shortcut di Desktop atau Start Menu. Aplikasi siap digunakan secara instan tanpa perlu memasang Python!
 
@@ -252,7 +252,7 @@ Proyek **ip+** merupakan hasil pengembangan, pembaruan, dan refaktorisasi terbuk
 1. Unduh **`ip_plus-Win64-Standalone-EXE-v1.0.0.zip`** dari tab [GitHub Releases](https://github.com/iqsanazhr/ip_plus/releases/latest).
 2. Ekstrak arsip ZIP ke folder pilihan Anda.
 3. Hubungkan iPhone via kabel USB dan ketuk **"Percayai"** (*Trust*).
-4. Klik ganda **`ip+.exe`**. Anda juga dapat menjalankan `scripts\Create-Desktop-Shortcut.bat` untuk membuat icon di Desktop secara otomatis.
+4. Klik ganda **`ip+.exe`**. Anda juga dapat menjalankan `scripts\Create-Desktop-Shortcut.bat` untuk membuat icon di Desktop secara otomatis. Jika driver Apple belum terpasang, cukup klik tombol pasang driver otomatis di layar utama.
 
 #### Cara 3: Menjalankan dari Kode Sumber (*For Developers*)
 ```powershell
