@@ -22,7 +22,7 @@
 </p>
 
 <p align="center">
-  <img src="assets/preview.jpg" alt="ip+ Floating Phone &amp; macOS Style Settings Preview" width="100%" />
+  <img src="assets/preview.png" alt="ip+ Floating Phone &amp; macOS Style Settings Preview" width="100%" />
 </p>
 
 ---
