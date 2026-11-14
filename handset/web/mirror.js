@@ -2978,8 +2978,21 @@ function fitCanvas() {
   canvas.style.top = "";
   canvas.style.left = "";
   canvas.style.margin = "";
-  if (fitMode === "autofit" || fitMode === "fill") {
-    // Tahap 69 & 71: Auto-Fit & Fill ALWAYS fill 100vw and 100vh (0px bottom black bar)
+
+  const containerAspect = w / h;
+  const contentAspect = (naturalW && naturalH) ? (naturalW / naturalH) : (1125 / 2436);
+  const aspectDiff = Math.abs(containerAspect - contentAspect) / (contentAspect || 1);
+
+  if (fitMode === "contain" || (fitMode === "autofit" && aspectDiff > 0.03)) {
+    // Preserve strict native 1:1 aspect ratio when window/container is maximized, full screen, or unconstrained
+    canvas.style.width = "100%";
+    canvas.style.height = "100%";
+    canvas.style.maxWidth = "100%";
+    canvas.style.maxHeight = "100%";
+    canvas.style.objectFit = "contain";
+    canvas.style.background = "#000000";
+  } else if (fitMode === "fill") {
+    // Explicit user 'fill' choice
     canvas.style.width = "100vw";
     canvas.style.height = "100vh";
     canvas.style.maxWidth = "100vw";
@@ -2987,10 +3000,12 @@ function fitCanvas() {
     canvas.style.objectFit = "fill";
     canvas.style.background = "";
   } else {
-    // fitMode === "contain" (Original Ratio)
-    canvas.style.width = "100%";
-    canvas.style.height = "100%";
-    canvas.style.objectFit = "contain";
+    // Auto-fit with calibrated window geometry (<= 3% subpixel tolerance)
+    canvas.style.width = "100vw";
+    canvas.style.height = "100vh";
+    canvas.style.maxWidth = "100vw";
+    canvas.style.maxHeight = "100vh";
+    canvas.style.objectFit = "fill";
     canvas.style.background = "";
   }
   const cropWrapper = document.getElementById("crop-wrapper");
@@ -3026,24 +3041,40 @@ function touchCoords(e) {
 
   // Real Phone Mode / object-fit compensation
   const isRealPhone = checkIsRealPhoneMode();
-  const isCover = !isRealPhone && canvas.style.objectFit === "cover";
+  const objFit = canvas.style.objectFit;
 
-  if (isCover && canvas.width > 0 && canvas.height > 0 && containerW > 0 && containerH > 0) {
+  if (!isRealPhone && canvas.width > 0 && canvas.height > 0 && containerW > 0 && containerH > 0) {
     const contentW = canvas.width;
     const contentH = canvas.height;
     const contentAspect = contentW / contentH;
     const containerAspect = containerW / containerH;
 
-    if (contentAspect > containerAspect) {
-      // Content is wider than container: height fills 100%, width is cropped equally on left & right
-      const renderedW = containerH * contentAspect;
-      const offsetX = (renderedW - containerW) / 2;
-      normX = (e.clientX - rect.left + offsetX) / renderedW;
-    } else if (contentAspect < containerAspect) {
-      // Content is taller than container: width fills 100%, height is cropped equally on top & bottom
-      const renderedH = containerW / contentAspect;
-      const offsetY = (renderedH - containerH) / 2;
-      normY = (e.clientY - rect.top + offsetY) / renderedH;
+    if (objFit === "contain") {
+      if (containerAspect > contentAspect) {
+        // Container is wider than content (pillarbox on left & right)
+        const renderedW = containerH * contentAspect;
+        const offsetX = (containerW - renderedW) / 2;
+        normX = (e.clientX - rect.left - offsetX) / renderedW;
+        normY = (e.clientY - rect.top) / containerH;
+      } else if (containerAspect < contentAspect) {
+        // Container is taller than content (letterbox on top & bottom)
+        const renderedH = containerW / contentAspect;
+        const offsetY = (containerH - renderedH) / 2;
+        normX = (e.clientX - rect.left) / containerW;
+        normY = (e.clientY - rect.top - offsetY) / renderedH;
+      }
+    } else if (objFit === "cover") {
+      if (contentAspect > containerAspect) {
+        // Content is wider than container: height fills 100%, width is cropped equally on left & right
+        const renderedW = containerH * contentAspect;
+        const offsetX = (renderedW - containerW) / 2;
+        normX = (e.clientX - rect.left + offsetX) / renderedW;
+      } else if (contentAspect < containerAspect) {
+        // Content is taller than container: width fills 100%, height is cropped equally on top & bottom
+        const renderedH = containerW / contentAspect;
+        const offsetY = (renderedH - containerH) / 2;
+        normY = (e.clientY - rect.top + offsetY) / renderedH;
+      }
     }
   }
 

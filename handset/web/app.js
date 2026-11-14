@@ -3102,6 +3102,13 @@ function handleDeviceDimensions(width, height) {
   if (aspect < 0.35 || aspect > 2.5) return;
   lastDeviceAspect = aspect;
 
+  const portraitAsp = aspect < 1 ? aspect : (1 / aspect);
+  const landscapeAsp = aspect > 1 ? aspect : (1 / aspect);
+  document.documentElement.style.setProperty("--device-aspect", String(portraitAsp));
+  document.documentElement.style.setProperty("--device-aspect-landscape", String(landscapeAsp));
+  appRoot?.style.setProperty("--device-aspect", String(portraitAsp));
+  appRoot?.style.setProperty("--device-aspect-landscape", String(landscapeAsp));
+
   if (isRealPhoneMode) {
     let asp = aspect;
     if (isLandscapeMode && asp < 1.0) asp = 1.0 / asp;
@@ -3112,7 +3119,10 @@ function handleDeviceDimensions(width, height) {
     return;
   }
 
-  if (isLandscapeMode || isFullSize || (appRoot && appRoot.classList.contains("is-fullsize")) || appRoot?.classList.contains("is-landscape")) return;
+  if (isLandscapeMode || isFullSize || (appRoot && appRoot.classList.contains("is-fullsize")) || appRoot?.classList.contains("is-landscape")) {
+    screenView?.contentWindow?.postMessage({ type: "resize" }, "*");
+    return;
+  }
 
   if (currentFitMode === "autofit") {
     // 838 window height - 36px Top Bar - 44px Quick Nav = 756px calibrated stage height (Tahap 69: Zero Black Bar)

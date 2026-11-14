@@ -97,3 +97,61 @@
 .screen-viewport:fullscreen .fs-exit {
   display: block;
 }
+
+/* ======================================================================
+   Full Size / Maximized Window Aspect Ratio Preservation (Anti-Gepeng)
+   ====================================================================== */
+.app.is-fullsize .display-col {
+  width: 100% !important;
+  height: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.app.is-fullsize .workspace {
+  width: 100% !important;
+  height: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 12px 0 !important;
+  box-sizing: border-box !important;
+  background: radial-gradient(circle at 50% 50%, rgba(26, 28, 38, 0.8) 0%, rgba(8, 10, 14, 0.96) 100%) !important;
+}
+
+/* Portrait Mode Full Screen: Strictly maintain 9:19.5 native iPhone aspect ratio */
+.app.is-fullsize:not(.is-landscape):not(.is-real-phone) #phone-shell {
+  width: auto !important;
+  height: calc(100vh - 62px) !important;
+  max-height: calc(100vh - 62px) !important;
+  aspect-ratio: var(--device-aspect, 1179 / 2556) !important;
+  max-width: calc((100vh - 62px) * var(--device-aspect, 0.4615)) !important;
+  margin: 0 auto !important;
+  border-radius: 46px !important;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(255, 255, 255, 0.14) !important;
+  overflow: hidden !important;
+  transition: width 180ms cubic-bezier(0.23, 1, 0.32, 1),
+              height 180ms cubic-bezier(0.23, 1, 0.32, 1) !important;
+}
+
+/* Landscape Mode Full Screen: Strictly maintain 19.5:9 native iPhone aspect ratio */
+.app.is-fullsize.is-landscape:not(.is-real-phone) #phone-shell {
+  width: auto !important;
+  height: calc(100vh - 62px) !important;
+  max-height: calc(100vh - 62px) !important;
+  aspect-ratio: var(--device-aspect-landscape, 2556 / 1179) !important;
+  max-width: calc(100vw - 32px) !important;
+  margin: 0 auto !important;
+  border-radius: 36px !important;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(255, 255, 255, 0.14) !important;
+  overflow: hidden !important;
+  transition: width 180ms cubic-bezier(0.23, 1, 0.32, 1),
+              height 180ms cubic-bezier(0.23, 1, 0.32, 1) !important;
+}
+
+.app.is-fullsize:not(.is-real-phone) #phone-screen {
+  width: 100% !important;
+  height: 100% !important;
+  border-radius: inherit !important;
+}
