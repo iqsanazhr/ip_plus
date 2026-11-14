@@ -21,6 +21,10 @@
   Platform desktop native Windows modern berkinerja tinggi untuk <i>screen mirroring</i> dan kontrol penuh perangkat Apple iPhone melalui koneksi kabel USB berkecepatan tinggi tanpa kompresi atau latensi jaringan Wi-Fi.
 </p>
 
+<p align="center">
+  <img src="assets/preview.jpg" alt="ip+ Floating Phone &amp; macOS Style Settings Preview" width="100%" />
+</p>
+
 ---
 
 Didesain dengan standar kriya tinggi (*high craft & design engineering*), sistem ini menghadirkan pengalaman visual sasis fisik **Apple Space Black Titanium**, kelengkungan kontinu **Apple $G^2$ Squircle**, pulau kamera **Dynamic Island** responsif berbasis rasio matematis, arsitektur *Single-Flight Gate* 60 FPS tanpa lag, serta peluncur native tanpa konsol CMD (**`ip+.exe`**) layaknya aplikasi desktop profesional komersial.
