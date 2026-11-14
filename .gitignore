@@ -1,0 +1,59 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyd
+
+# C / C# / Binary build artifacts
+*.obj
+*.pdb
+*.ilk
+*.exp
+*.lib
+*.tmp
+*.bak
+*.swp
+
+# Virtual environments
+venv/
+.venv/
+env/
+ENV/
+
+# PyInstaller / Build
+build/
+dist/
+release/
+packaging/
+*.egg-info/
+*.zip
+
+# Operating System & IDE artifacts
+.vscode/
+.idea/
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+.DS_Store
+
+# Logs & Temporary runtime files
+*.log
+.audio_worker.pid
+debug_metrics.json
+typed_history.json
+user_settings.json
+wifi_state.json
+debug_ocr_*
+self_test_result.json
+update_shortcuts.ps1
+
+# WebView2 isolated user data & caches
+.pane_webview_storage*/
+.playwright-mcp/
+.agents/
+scratch/
+
+# Pairing and device security records
+*.plist
+*.pairrecord
+pair_records/

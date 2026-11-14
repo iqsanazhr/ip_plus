@@ -1,0 +1,74 @@
+/**
+ * iPhone Link - CSS Variables & Design Tokens
+ * Fluent Design + Apple Human Interface Guidelines
+ */
+
+:root {
+  color-scheme: dark;
+  --bg: transparent;
+  --bg-acrylic: rgba(16, 18, 24, 0.40);
+  --bg-flyout: rgba(20, 23, 30, 0.45);
+  --surface: rgba(255, 255, 255, 0.055);
+  --card: rgba(255, 255, 255, 0.055);
+  --panel: rgba(18, 21, 28, 0.35);
+  --display-width: 346px;
+  --surface-hover: rgba(255, 255, 255, 0.10);
+  --surface-active: rgba(255, 255, 255, 0.15);
+  --line: rgba(255, 255, 255, 0.10);
+  --border-acrylic: rgba(255, 255, 255, 0.15);
+  --shadow-acrylic: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+  --text: #ffffff;
+  --text-secondary: #e2e8f0;
+  --muted: #94a3b8;
+  --accent: #0078d4;
+  --accent-hover: #1886d9;
+  --accent-active: #0067c0;
+  --accent-dim: rgba(0, 120, 212, 0.35);
+  --ok: #6ccb5f;
+  --warn: #fce100;
+  --bad: #ff99a4;
+  --font: 'Segoe UI Variable Text', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+  --mono: 'Cascadia Code', 'Segoe UI Mono', ui-monospace, monospace;
+
+  /* iPhone Hardware Colors (Natural & Black Titanium) */
+  --hw-border-outer: #1c1c20;
+  --hw-border-inner: #2c2c34;
+  --hw-metal-light: #484852;
+  --hw-metal-dark: #1e1e24;
+  --hw-btn-sheen: linear-gradient(180deg, #3a3a42 0%, #222228 100%);
+  --hw-btn-shadow: rgba(0, 0, 0, 0.55);
+}
+
+[data-theme="light"],
+.app[data-theme="light"] {
+  color-scheme: light;
+  --bg: transparent;
+  --bg-acrylic: rgba(242, 246, 252, 0.50);
+  --bg-flyout: rgba(240, 244, 252, 0.52);
+  --surface: rgba(255, 255, 255, 0.45);
+  --card: rgba(255, 255, 255, 0.45);
+  --panel: rgba(240, 245, 252, 0.45);
+  --display-width: 346px;
+  --surface-hover: rgba(255, 255, 255, 0.85);
+  --surface-active: rgba(255, 255, 255, 0.95);
+  --line: rgba(0, 0, 0, 0.08);
+  --border-acrylic: rgba(255, 255, 255, 0.90);
+  --shadow-acrylic: 0 8px 32px 0 rgba(0, 0, 0, 0.08);
+  --text: #0f172a;
+  --text-secondary: #334155;
+  --muted: #64748b;
+  --accent: #0078d4;
+  --accent-hover: #106ebe;
+  --accent-active: #005a9e;
+  --accent-dim: rgba(0, 120, 212, 0.15);
+  --ok: #15803d;
+  --warn: #b45309;
+  --bad: #b91c1c;
+
+  --hw-border-outer: #28282e;
+  --hw-border-inner: #3a3a42;
+  --hw-metal-light: #5a5a64;
+  --hw-metal-dark: #24242a;
+  --hw-btn-sheen: linear-gradient(180deg, #484850 0%, #2a2a30 100%);
+  --hw-btn-shadow: rgba(0, 0, 0, 0.35);
+}

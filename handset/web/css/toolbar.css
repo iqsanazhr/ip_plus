@@ -1,0 +1,229 @@
+/**
+ * iPhone Link - Top Toolbar & Window Controls
+ */
+
+.app-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 10px 0 12px;
+  height: 38px;
+  min-height: 38px;
+  max-height: 38px;
+  gap: 6px;
+  background: var(--bg-acrylic);
+  backdrop-filter: blur(32px) saturate(190%);
+  -webkit-backdrop-filter: blur(32px) saturate(190%);
+  border-bottom: 1px solid var(--border-acrylic);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 8px 32px 0 rgba(0, 0, 0, 0.28);
+  z-index: 50;
+  user-select: none;
+}
+
+.app-title-area {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.brand-title {
+  font-size: 13.5px;
+  font-weight: 700;
+  letter-spacing: -0.2px;
+  color: var(--text);
+}
+
+.app-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.btn-label {
+  display: inline;
+  white-space: nowrap;
+}
+
+.bar-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 26px;
+  padding: 0 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background-color 140ms cubic-bezier(0.23, 1, 0.32, 1),
+              border-color 140ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.bar-btn:hover {
+  background: var(--surface-hover);
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+.bar-btn:active {
+  background: var(--surface-active);
+  transform: scale(0.97);
+}
+
+#stop-screen[hidden],
+#stop-screen.is-hidden {
+  display: none !important;
+}
+
+.icon-btn {
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background-color 140ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.icon-btn:hover {
+  background: var(--surface-hover);
+}
+
+.icon-btn:active {
+  transform: scale(0.96);
+}
+
+.window-controls {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin-left: 2px;
+  flex-shrink: 0;
+}
+
+.win-btn {
+  width: 26px;
+  height: 26px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  color: var(--text);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background-color 120ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.win-btn:hover {
+  background: var(--surface-hover);
+}
+
+.win-close:hover {
+  background: #e81123 !important;
+  color: #ffffff !important;
+}
+
+#btn-real-phone-mode.is-active {
+  color: var(--accent);
+  background: rgba(0, 120, 212, 0.2);
+  border-color: rgba(0, 120, 212, 0.4);
+}
+
+/* ======================================================================
+   Compact Toolbar Rules for Portrait Narrow Window (Eliminates Right Overflow)
+   ====================================================================== */
+.app:not(.drawer-open):not(.is-landscape):not(.is-fullsize) .brand-title {
+  display: none !important;
+}
+
+.app:not(.drawer-open):not(.is-landscape):not(.is-fullsize) #restart-screen .btn-label {
+  display: none !important;
+}
+
+.app:not(.drawer-open):not(.is-landscape):not(.is-fullsize) #restart-screen {
+  padding: 0 4px !important;
+  width: 24px !important;
+  height: 24px !important;
+  justify-content: center !important;
+}
+
+.app:not(.drawer-open):not(.is-landscape):not(.is-fullsize) .app-bar {
+  padding: 0 6px 0 8px !important;
+  gap: 2px !important;
+}
+
+.app:not(.drawer-open):not(.is-landscape):not(.is-fullsize) .app-actions {
+  gap: 2px !important;
+}
+
+.app:not(.drawer-open):not(.is-landscape):not(.is-fullsize) .icon-btn {
+  width: 24px !important;
+  height: 24px !important;
+}
+
+.app:not(.drawer-open):not(.is-landscape):not(.is-fullsize) .win-btn {
+  width: 24px !important;
+  height: 24px !important;
+}
+
+@media (max-width: 520px) {
+  .brand-title {
+    display: none !important;
+  }
+  #restart-screen .btn-label {
+    display: none !important;
+  }
+  #restart-screen {
+    padding: 0 4px !important;
+    width: 24px !important;
+    height: 24px !important;
+    justify-content: center !important;
+  }
+  .app-bar {
+    padding: 0 6px 0 8px !important;
+    gap: 2px !important;
+  }
+  .app-actions {
+    gap: 2px !important;
+  }
+  .icon-btn {
+    width: 24px !important;
+    height: 24px !important;
+  }
+  .win-btn {
+    width: 24px !important;
+    height: 24px !important;
+  }
+}
+
+/* Re-expand labels when drawer is open, landscape, or fullscreen */
+.app.drawer-open .brand-title,
+.app.is-landscape .brand-title,
+.app.is-fullsize .brand-title {
+  display: inline !important;
+}
+
+.app.drawer-open #restart-screen .btn-label,
+.app.is-landscape #restart-screen .btn-label,
+.app.is-fullsize #restart-screen .btn-label {
+  display: inline !important;
+}
+
+.app.drawer-open #restart-screen,
+.app.is-landscape #restart-screen,
+.app.is-fullsize #restart-screen {
+  width: auto !important;
+  padding: 0 8px !important;
+}

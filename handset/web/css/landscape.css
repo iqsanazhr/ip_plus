@@ -1,0 +1,31 @@
+/**
+ * iPhone Link - Landscape Mode & Rotation
+ */
+
+.app.is-landscape .main-body {
+  flex-direction: row;
+}
+
+.app.is-landscape #phone-shell,
+.app.is-landscape .screen-stage,
+.app.is-landscape .screen-viewport {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.app.is-landscape #phone-screen {
+  border-radius: 28px;
+}
+
+.rotate-mode-badge {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--muted);
+  margin-left: 2px;
+}
+
+.rotate-mode-badge.is-landscape {
+  background: var(--accent);
+}

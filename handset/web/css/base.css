@@ -1,0 +1,66 @@
+/**
+ * iPhone Link - Base & Global Styles
+ */
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  margin: 0;
+  padding: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  user-select: none;
+  background: transparent !important;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  font: 14px/1.4 var(--font);
+  color: var(--text);
+  background: transparent !important;
+  transition: color 0.2s ease;
+}
+
+html,
+body {
+  border-radius: 0;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  a:hover {
+    text-decoration: underline;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Frameless Window Drag Region */
+.pywebview-drag-region {
+  -webkit-app-region: drag;
+  user-select: none;
+}
+
+button,
+input,
+select,
+.no-drag,
+.island-actions,
+.window-controls {
+  -webkit-app-region: no-drag;
+}

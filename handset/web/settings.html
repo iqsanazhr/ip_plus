@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ip+ - Settings</title>
+  <link rel="icon" type="image/svg+xml" href="/logo.svg">
+  <link rel="stylesheet" href="/css/variables.css">
+  <link rel="stylesheet" href="/css/controls.css">
+  <link rel="stylesheet" href="/css/settings.css?v=20261113_m4">
+  <script>
+    try {
+      const savedTheme = localStorage.getItem("pane-theme") || "dark";
+      document.documentElement.setAttribute("data-theme", savedTheme);
+    } catch (_) {}
+  </script>
+</head>
+<body class="settings-body" data-theme="dark">
+  <div class="settings-app" id="settings-app">
+    <!-- Left Sidebar Navigation -->
+    <aside class="settings-sidebar" id="sidebar-pane">
+      <!-- macOS Traffic Lights Title Bar -->
+      <div class="mac-traffic-lights pywebview-drag-region" id="mac-traffic-lights">
+        <div class="traffic-light-buttons">
+          <button type="button" class="traffic-btn traffic-close" id="mac-btn-close" title="Close (Cmd+W)" aria-label="Close"></button>
+          <button type="button" class="traffic-btn traffic-min" id="mac-btn-min" title="Minimize (Cmd+M)" aria-label="Minimize"></button>
+          <button type="button" class="traffic-btn traffic-max" id="mac-btn-max" title="Zoom / Fullscreen" aria-label="Zoom"></button>
+        </div>
+      </div>
+
+      <div class="sidebar-header pywebview-drag-region">
+        <div class="sidebar-brand">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="sidebar-brand-icon" aria-hidden="true">
+            <rect x="5" y="2" width="14" height="20" rx="4"/>
+            <line x1="12" y1="18" x2="12.01" y2="18" stroke-width="2.5"/>
+          </svg>
+          <span class="sidebar-brand-text">Settings</span>
+        </div>
+        <div class="sidebar-search">
+          <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="search-icon" aria-hidden="true">
+            <circle cx="11" cy="11" r="8"/>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          <input type="text" id="settings-search" placeholder="Search settings..." autocomplete="off" aria-label="Search settings">
+        </div>
+      </div>
+
+      <nav class="sidebar-nav" id="sidebar-nav" role="tablist" aria-label="Settings categories">
+        <button type="button" class="nav-item is-active" data-tab="tab-appearance" role="tab" aria-selected="true" id="nav-tab-appearance">
+          <span class="nav-icon-tile tile-purple">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/>
+              <circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/>
+              <circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/>
+              <circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/>
+              <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.563-2.512 5.563-5.563C22 6.5 17.5 2 12 2z"/>
+            </svg>
+          </span>
+          <span class="nav-text">Appearance</span>
+        </button>
+        <button type="button" class="nav-item" data-tab="tab-display" role="tab" aria-selected="false" id="nav-tab-display">
+          <span class="nav-icon-tile tile-blue">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="3" width="20" height="14" rx="2"/>
+              <line x1="8" y1="21" x2="16" y2="21"/>
+              <line x1="12" y1="17" x2="12" y2="21"/>
+            </svg>
+          </span>
+          <span class="nav-text">Display &amp; Screen</span>
+        </button>
+        <button type="button" class="nav-item" data-tab="tab-audio" role="tab" aria-selected="false" id="nav-tab-audio">
+          <span class="nav-icon-tile tile-pink">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+              <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/>
+            </svg>
+          </span>
+          <span class="nav-text">Audio</span>
+        </button>
+        <button type="button" class="nav-item" data-tab="tab-trackpad" role="tab" aria-selected="false" id="nav-tab-trackpad">
+          <span class="nav-icon-tile tile-teal">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="6" y="3" width="12" height="18" rx="6"/>
+              <line x1="12" y1="7" x2="12" y2="10"/>
+            </svg>
+          </span>
+          <span class="nav-text">Keyboard &amp; Mouse</span>
+        </button>
+        <button type="button" class="nav-item" data-tab="tab-keyboard" role="tab" aria-selected="false" id="nav-tab-keyboard">
+          <span class="nav-icon-tile tile-orange">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="4" width="20" height="16" rx="2.5"/>
+              <path d="M6 8h.01M10 8h.01M14 8h.01M18 8h.01M6 12h.01M10 12h.01M14 12h.01M18 12h.01M8 16h8"/>
+            </svg>
+          </span>
+          <span class="nav-text">Shortcuts &amp; Input</span>
+        </button>
+        <button type="button" class="nav-item" data-tab="tab-security" role="tab" aria-selected="false" id="nav-tab-security">
+          <span class="nav-icon-tile tile-indigo">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
+          </span>
+          <span class="nav-text">Privacy &amp; Security</span>
+        </button>
+        <button type="button" class="nav-item" data-tab="tab-connection" role="tab" aria-selected="false" id="nav-tab-connection">
+          <span class="nav-icon-tile tile-green">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="5" y="2" width="14" height="20" rx="4"/>
+              <line x1="12" y1="18" x2="12.01" y2="18" stroke-width="2.5"/>
+            </svg>
+          </span>
+          <span class="nav-text">Connection &amp; Devices</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <span class="version-tag">ip+ &bull; macOS Style</span>
+      </div>
+    </aside>
+
+    <!-- Right Content Area -->
+    <main class="settings-content" id="content-pane" role="region" aria-label="Category settings">
+      <!-- Header bar inside content (Draggable Titlebar) -->
+      <header class="content-header pywebview-drag-region">
+        <h1 class="category-title" id="category-title">Appearance</h1>
+      </header>
+
+      <div class="content-scroll" id="content-scroll">
+        <!-- Tab 1: Appearance / General -->
+        <section class="tab-pane is-active" id="tab-appearance" role="tabpanel" aria-labelledby="nav-tab-appearance">
+          <div class="settings-group" data-keywords="theme dark light appearance interface style">
+            <h2 class="group-title">Theme &amp; Appearance</h2>
+            <div class="settings-card">
+              <div class="setting-row">
+                <div class="setting-meta">
+                  <span class="setting-title">Interface Style</span>
+                  <span class="setting-desc">Switch between Dark and Light mode for toolbar, menus, and settings.</span>
+                </div>
+                <div class="segmented segmented-theme" role="radiogroup" aria-label="Theme mode">
+                  <button type="button" class="seg is-active" data-theme-choice="dark" role="radio" aria-checked="true">Dark</button>
+                  <button type="button" class="seg" data-theme-choice="light" role="radio" aria-checked="false">Light</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="settings-group" data-keywords="real phone mode chassis border floating transparent per-pixel alt+p">
+            <h2 class="group-title">Real Phone Mode</h2>
+            <div class="settings-card">
+              <div class="setting-row">
+                <div class="setting-meta">
+                  <span class="setting-title">Floating Phone Chassis</span>
+                  <span class="setting-desc">Borderless, 100% per-pixel transparent background floating on your desktop. Shortcut: <strong class="badge-key">Alt+P</strong></span>
+                </div>
+                <label class="toggle-switch" aria-label="Toggle Real Phone Mode">
+                  <input type="checkbox" id="toggle-real-phone-mode">
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Tab 2: Display & Screen -->
+        <section class="tab-pane" id="tab-display" role="tabpanel" aria-labelledby="nav-tab-display" hidden>
+          <div class="settings-group" data-keywords="resolution quality stream display sharpness 720p 1080p 2k 3k 4k native retina supersampling">
+            <h2 class="group-title">Stream Resolution &amp; Quality</h2>
+            <div class="settings-card">
+              <div class="setting-row">
+                <div class="setting-meta">
+                  <span class="setting-title">Stream Resolution</span>
+                  <span class="setting-desc">Set streaming fidelity. 2K, 3K, 4K &amp; Native provide ultra-sharp supersampling for high-res desktop monitors.</span>
+                </div>
+                <div class="segmented segmented-resolution" role="radiogroup" aria-label="Stream Resolution">
+                  <button type="button" class="seg" data-resolution-choice="720p" role="radio" aria-checked="false">720p</button>
+                  <button type="button" class="seg is-active" data-resolution-choice="1080p" role="radio" aria-checked="true">1080p</button>
+                  <button type="button" class="seg" data-resolution-choice="2k" role="radio" aria-checked="false">2K</button>
+                  <button type="button" class="seg" data-resolution-choice="3k" role="radio" aria-checked="false">3K</button>
+                  <button type="button" class="seg" data-resolution-choice="4k" role="radio" aria-checked="false">4K</button>
+                  <button type="button" class="seg" data-resolution-choice="native" role="radio" aria-checked="false">Native</button>
+                </div>
+              </div>
+
+              <div class="setting-row">
+                <div class="setting-meta">
+                  <span class="setting-title">Retina Text &amp; Subpixel Sharpness</span>
+                  <span class="setting-desc">Apply high-fidelity bicubic smoothing to enhance text clarity and eliminate blur on desktop.</span>
+                </div>
+                <div class="segmented segmented-sharpness" role="radiogroup" aria-label="Subpixel Sharpness">
+                  <button type="button" class="seg" data-sharpness-choice="standard" role="radio" aria-checked="false">Standard</button>
+                  <button type="button" class="seg is-active" data-sharpness-choice="crisp" role="radio" aria-checked="true">Crisp Retina</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="settings-group" data-keywords="display scaling fit aspect autofit fill contain stretch auto-rotate game">
+            <h2 class="group-title">Display Scaling &amp; Rotation</h2>
+            <div class="settings-card">
+              <div class="setting-row">
+                <div class="setting-meta">
+                  <span class="setting-title">Fit &amp; Aspect Ratio</span>
+                  <span class="setting-desc">Adapt screen geometry inside the mirror container without distortion.</span>
+                </div>
+                <div class="segmented segmented-fit" role="radiogroup" aria-label="Display Fit mode">
+                  <button type="button" class="seg is-active" data-fit-choice="autofit" role="radio" aria-checked="true">Auto-Fit</button>
+                  <button type="button" class="seg" data-fit-choice="fill" role="radio" aria-checked="false">Edge-to-Edge</button>
+                  <button type="button" class="seg" data-fit-choice="contain" role="radio" aria-checked="false">Original</button>
+                </div>
+              </div>
+
+              <div class="setting-row">
+                <div class="setting-meta">
+                  <span class="setting-title">Auto-Rotate Game Mode</span>
+                  <span class="setting-desc">Automatically switch orientation when games like eFootball or Genshin launch.</span>
+                </div>
+                <div class="segmented segmented-toggle" role="radiogroup" aria-label="Auto-Rotate Game Mode">
+                  <button type="button" class="seg is-active" data-auto-rotate-choice="off" role="radio" aria-checked="true">OFF</button>
+                  <button type="button" class="seg" data-auto-rotate-choice="on" role="radio" aria-checked="false">ON</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="settings-group" data-keywords="crop edge pixels fine tuning borders black bars margins">
+            <h2 class="group-title">Edge Crop Calibration (px)</h2>
+            <div class="settings-card">
+              <div class="crop-grid-two-col">
+                <div class="crop-row">
+                  <span class="crop-label">Top</span>
+                  <input type="range" id="crop-top-slider" min="0" max="120" step="1" value="0" aria-label="Crop top slider">
+                  <input type="number" id="crop-top-num" min="0" max="120" step="1" value="0" class="crop-num" aria-label="Crop top value">
+                </div>
+                <div class="crop-row">
+                  <span class="crop-label">Bottom</span>
+                  <input type="range" id="crop-bottom-slider" min="0" max="120" step="1" value="0" aria-label="Crop bottom slider">
+                  <input type="number" id="crop-bottom-num" min="0" max="120" step="1" value="0" class="crop-num" aria-label="Crop bottom value">
+                </div>
+                <div class="crop-row">
+                  <span class="crop-label">Left</span>
+                  <input type="range" id="crop-left-slider" min="0" max="120" step="1" value="0" aria-label="Crop left slider">
+                  <input type="number" id="crop-left-num" min="0" max="120" step="1" value="0" class="crop-num" aria-label="Crop left value">
+                </div>
+                <div class="crop-row">
+                  <span class="crop-label">Right</span>
+                  <input type="range" id="crop-right-slider" min="0" max="120" step="1" value="0" aria-label="Crop right slider">
+                  <input type="number" id="crop-right-num" min="0" max="120" step="1" value="0" class="crop-num" aria-label="Crop right value">
+                </div>
+              </div>
+              <div class="card-action-bar">
+                <button type="button" class="ctl ctl-sm" id="btn-reset-crop">
+                  <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px; vertical-align: -1px;">
+                    <polyline points="1 4 1 10 7 10"/>
+                    <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
+                  </svg>
+                  Reset (0 px)
+                </button>
+                <button type="button" class="ctl ctl-sm ctl-accent" id="btn-save-crop">
+                  <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px; vertical-align: -1px;">
+                    <polyline points="20 6 9 17 4 12"/>
+                  </svg>
+                  Save Crop
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Tab 3: Audio -->
+        <section class="tab-pane" id="tab-audio" role="tabpanel" aria-labelledby="nav-tab-audio" hidden>
+          <div class="settings-group" data-keywords="audio sound speakers sink volume bluetooth pair routing">
+            <h2 class="group-title">Audio Routing</h2>
+            <div class="settings-card">
+              <div class="setting-row">
+                <div class="setting-meta">
+                  <span class="setting-title">iPhone &rarr; PC Speaker Sink</span>
+                  <span class="setting-desc">Forward iPhone media, music, and game audio directly to Windows speakers.</span>
+                </div>
+                <div class="row-action-cluster">
+                  <span class="audio-badge" id="audio-status-badge">○ Off</span>
+                  <label class="toggle-switch" aria-label="Toggle iPhone to PC Audio Sink">
+                    <input type="checkbox" id="toggle-audio-sink">
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="setting-row">
+                <div class="setting-meta">
+                  <span class="setting-title">PC Output Volume</span>
+                  <span class="setting-desc">Adjust speaker gain level for mirrored audio stream.</span>
+                </div>
+                <div class="slider-val-cluster">
+                  <input type="range" id="audio-vol-slider" min="0" max="100" step="1" value="100" aria-label="Audio volume slider">
+                  <span class="val-pill" id="audio-vol-val">100%</span>
+                </div>
+              </div>
+
+              <div class="setting-row">
+                <div class="setting-meta">
+                  <span class="setting-title">Bluetooth Audio Pairing</span>
+                  <span class="setting-desc">Open Windows Bluetooth Settings to link iPhone as an A2DP audio source.</span>
+                </div>
+                <button type="button" class="ctl ctl-sm" id="btn-audio-pair">Open Windows Bluetooth</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Tab 4: Keyboard & Mouse (Trackpad) -->
+        <section class="tab-pane" id="tab-trackpad" role="tabpanel" aria-labelledby="nav-tab-trackpad" hidden>
+          <div class="settings-group" data-keywords="mouse trackpad speed sensitivity gestures swipe scroll cursor">
+            <h2 class="group-title">Trackpad &amp; Cursor Sensitivity</h2>
+            <div class="settings-card">
+              <div class="setting-row">
+                <div class="setting-meta">
+                  <span class="setting-title">Speed Presets</span>
+                  <span class="setting-desc">Select speed curve sensitivity multiplier for swipe gestures and mouse scrolling.</span>
+                </div>
+                <div class="segmented segmented-speed" role="radiogroup" aria-label="Speed presets">
+                  <button type="button" class="seg" data-speed-choice="65">Slow (65%)</button>
+                  <button type="button" class="seg is-active" data-speed-choice="100">Default (100%)</button>
+                  <button type="button" class="seg" data-speed-choice="140">Fast (140%)</button>
+                </div>
+              </div>
+
+              <div class="setting-row">
+                <div class="setting-meta">
+                  <span class="setting-title">Custom Sensitivity Multiplier</span>
+                  <span class="setting-desc">Fine-tune swipe velocity multiplier (30% to 200%).</span>
+                </div>
+                <div class="slider-val-cluster">
+                  <input type="range" id="trackpad-speed-slider" min="30" max="200" step="5" value="100" aria-label="Trackpad speed slider">
+                  <input type="number" id="trackpad-speed-num" min="30" max="200" step="5" value="100" class="crop-num" aria-label="Trackpad speed value">
+                </div>
+              </div>
+
+              <div class="card-action-bar">
+                <button type="button" class="ctl ctl-sm ctl-accent" id="btn-save-speed">Save Speed</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Tab 5: Shortcuts & Input -->
+        <section class="tab-pane" id="tab-keyboard" role="tabpanel" aria-labelledby="nav-tab-keyboard" hidden>
+          <div class="shortcuts-search-box">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="search-icon" aria-hidden="true">
+              <circle cx="11" cy="11" r="8"/>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            <input type="text" id="shortcuts-filter-input" class="shortcuts-search-input" placeholder="Search shortcuts..." autocomplete="off" spellcheck="false" aria-label="Search shortcuts">
+          </div>
+
+          <!-- Shortcuts Empty State -->
+          <div class="shortcuts-empty-state" id="shortcuts-empty-state">
+            No shortcuts found matching "<span id="search-query-echo"></span>"
+          </div>
+
+          <!-- Category 1: Navigation -->
+          <div class="shortcuts-category-group" data-category="navigation">
+            <h2 class="shortcuts-category-title">Navigation</h2>
+            <div class="shortcuts-table-card">
+              <div class="shortcut-row" data-name="Open Settings" data-keys="alt s ctrl ,">
+                <span class="shortcut-action-name">Open Settings</span>
+                <div class="shortcut-keys-stack">
+                  <div class="shortcut-key-item">
+                    <span class="key-combo"><span class="key-cap">Alt</span><span class="key-plus">+</span><span class="key-cap">S</span></span>
+                    <button type="button" class="shortcut-trash-btn" title="Reset shortcut" aria-label="Reset shortcut">
+                      <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="shortcut-row" data-name="Toggle Real Phone Mode" data-keys="alt p">
+                <span class="shortcut-action-name">Toggle Real Phone Mode</span>
+                <div class="shortcut-keys-stack">
+                  <div class="shortcut-key-item">
+                    <span class="key-combo"><span class="key-cap">Alt</span><span class="key-plus">+</span><span class="key-cap">P</span></span>
+                    <button type="button" class="shortcut-trash-btn" title="Reset shortcut" aria-label="Reset shortcut">
+                      <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="shortcut-row" data-name="Rotate Screen Landscape Portrait" data-keys="alt h">
+                <span class="shortcut-action-name">Rotate Screen (Landscape / Portrait)</span>
+                <div class="shortcut-keys-stack">
+                  <div class="shortcut-key-item">
+                    <span class="key-combo"><span class="key-cap">Alt</span><span class="key-plus">+</span><span class="key-cap">H</span></span>
+                    <button type="button" class="shortcut-trash-btn" title="Reset shortcut" aria-label="Reset shortcut">
+                      <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="shortcut-row" data-name="Toggle Full Size Scaling" data-keys="alt f">
+                <span class="shortcut-action-name">Toggle Full Size / Scaling</span>
+                <div class="shortcut-keys-stack">
+                  <div class="shortcut-key-item">
+                    <span class="key-combo"><span class="key-cap">Alt</span><span class="key-plus">+</span><span class="key-cap">F</span></span>
+                    <button type="button" class="shortcut-trash-btn" title="Reset shortcut" aria-label="Reset shortcut">
+                      <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="shortcut-row" data-name="Minimize to System Tray" data-keys="alt m">
+                <span class="shortcut-action-name">Minimize to System Tray</span>
+                <div class="shortcut-keys-stack">
+                  <div class="shortcut-key-item">
+                    <span class="key-combo"><span class="key-cap">Alt</span><span class="key-plus">+</span><span class="key-cap">M</span></span>
+                    <button type="button" class="shortcut-trash-btn" title="Reset shortcut" aria-label="Reset shortcut">
+                      <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="shortcut-row" data-name="Exit Fullscreen Close" data-keys="esc alt w">
+                <span class="shortcut-action-name">Exit Fullscreen / Close</span>
+                <div class="shortcut-keys-stack">
+                  <div class="shortcut-key-item">
+                    <span class="key-combo"><span class="key-cap">Esc</span></span>
+                    <button type="button" class="shortcut-trash-btn" title="Reset shortcut" aria-label="Reset shortcut">
+                      <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Category 2: Device Control -->
+          <div class="shortcuts-category-group" data-category="device">
+            <h2 class="shortcuts-category-title">Device &amp; System Control</h2>
+            <div class="shortcuts-table-card">
+              <div class="shortcut-row" data-name="Wake Unlock iPhone" data-keys="alt u">
+                <span class="shortcut-action-name">Wake / Unlock iPhone</span>
+                <div class="shortcut-keys-stack">
+                  <div class="shortcut-key-item">
+                    <span class="key-combo"><span class="key-cap">Alt</span><span class="key-plus">+</span><span class="key-cap">U</span></span>
+                    <button type="button" class="shortcut-trash-btn" title="Reset shortcut" aria-label="Reset shortcut">
+                      <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="shortcut-row" data-name="Lock iPhone Screen" data-keys="alt l">
+                <span class="shortcut-action-name">Lock iPhone Screen</span>
+                <div class="shortcut-keys-stack">
+                  <div class="shortcut-key-item">
+                    <span class="key-combo"><span class="key-cap">Alt</span><span class="key-plus">+</span><span class="key-cap">L</span></span>
+                    <button type="button" class="shortcut-trash-btn" title="Reset shortcut" aria-label="Reset shortcut">
+                      <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="shortcut-row" data-name="Stealth Mode Dim Display Power Saver" data-keys="alt d">
+                <span class="shortcut-action-name">Stealth Mode (Dim Display)</span>
+                <div class="shortcut-keys-stack">
+                  <div class="shortcut-key-item">
+                    <span class="key-combo"><span class="key-cap">Alt</span><span class="key-plus">+</span><span class="key-cap">D</span></span>
+                    <button type="button" class="shortcut-trash-btn" title="Reset shortcut" aria-label="Reset shortcut">
+                      <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="shortcut-row" data-name="Toggle iOS On-Screen Keyboard" data-keys="ctrl k">
+                <span class="shortcut-action-name">Toggle iOS On-Screen Keyboard</span>
+                <div class="shortcut-keys-stack">
+                  <div class="shortcut-key-item">
+                    <span class="key-combo"><span class="key-cap">Ctrl</span><span class="key-plus">+</span><span class="key-cap">K</span></span>
+                    <button type="button" class="shortcut-trash-btn" title="Reset shortcut" aria-label="Reset shortcut">
+                      <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Category 3: Clipboard & Text -->
+          <div class="shortcuts-category-group" data-category="clipboard">
+            <h2 class="shortcuts-category-title">Clipboard &amp; Productivity</h2>
+            <div class="shortcuts-table-card">
+              <div class="shortcut-row" data-name="Copy from iPhone OCR Text" data-keys="alt c ctrl c">
+                <span class="shortcut-action-name">Copy from iPhone (OCR Engine)</span>
+                <div class="shortcut-keys-stack">
+                  <div class="shortcut-key-item">
+                    <span class="key-combo"><span class="key-cap">Alt</span><span class="key-plus">+</span><span class="key-cap">C</span></span>
+                    <button type="button" class="shortcut-trash-btn" title="Reset shortcut" aria-label="Reset shortcut">
+                      <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                    </button>
+                  </div>
+                  <div class="shortcut-key-item">
+                    <span class="key-combo"><span class="key-cap">Ctrl</span><span class="key-plus">+</span><span class="key-cap">C</span></span>
+                    <button type="button" class="shortcut-trash-btn" title="Reset shortcut" aria-label="Reset shortcut">
+                      <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="shortcut-row" data-name="Paste PC Clipboard to iPhone" data-keys="alt v ctrl v">
+                <span class="shortcut-action-name">Paste PC Clipboard to iPhone</span>
+                <div class="shortcut-keys-stack">
+                  <div class="shortcut-key-item">
+                    <span class="key-combo"><span class="key-cap">Alt</span><span class="key-plus">+</span><span class="key-cap">V</span></span>
+                    <button type="button" class="shortcut-trash-btn" title="Reset shortcut" aria-label="Reset shortcut">
+                      <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                    </button>
+                  </div>
+                  <div class="shortcut-key-item">
+                    <span class="key-combo"><span class="key-cap">Ctrl</span><span class="key-plus">+</span><span class="key-cap">V</span></span>
+                    <button type="button" class="shortcut-trash-btn" title="Reset shortcut" aria-label="Reset shortcut">
+                      <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="shortcut-row" data-name="Clear Clipboard Long Text Cache" data-keys="alt r">
+                <span class="shortcut-action-name">Clear Clipboard Cache</span>
+                <div class="shortcut-keys-stack">
+                  <div class="shortcut-key-item">
+                    <span class="key-combo"><span class="key-cap">Alt</span><span class="key-plus">+</span><span class="key-cap">R</span></span>
+                    <button type="button" class="shortcut-trash-btn" title="Reset shortcut" aria-label="Reset shortcut">
+                      <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="shortcut-row" data-name="Grab Social Link QR Instagram TikTok Threads" data-keys="alt b">
+                <span class="shortcut-action-name">Grab Social Link (Instagram / TikTok)</span>
+                <div class="shortcut-keys-stack">
+                  <div class="shortcut-key-item">
+                    <span class="key-combo"><span class="key-cap">Alt</span><span class="key-plus">+</span><span class="key-cap">B</span></span>
+                    <button type="button" class="shortcut-trash-btn" title="Reset shortcut" aria-label="Reset shortcut">
+                      <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="shortcut-row" data-name="Select All Text" data-keys="ctrl a">
+                <span class="shortcut-action-name">Select All</span>
+                <div class="shortcut-keys-stack">
+                  <div class="shortcut-key-item">
+                    <span class="key-combo"><span class="key-cap">Ctrl</span><span class="key-plus">+</span><span class="key-cap">A</span></span>
+                    <button type="button" class="shortcut-trash-btn" title="Reset shortcut" aria-label="Reset shortcut">
+                      <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="shortcut-row" data-name="Cut Text" data-keys="ctrl x">
+                <span class="shortcut-action-name">Cut</span>
+                <div class="shortcut-keys-stack">
+                  <div class="shortcut-key-item">
+                    <span class="key-combo"><span class="key-cap">Ctrl</span><span class="key-plus">+</span><span class="key-cap">X</span></span>
+                    <button type="button" class="shortcut-trash-btn" title="Reset shortcut" aria-label="Reset shortcut">
+                      <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="shortcut-row" data-name="Undo Action" data-keys="ctrl z">
+                <span class="shortcut-action-name">Undo</span>
+                <div class="shortcut-keys-stack">
+                  <div class="shortcut-key-item">
+                    <span class="key-combo"><span class="key-cap">Ctrl</span><span class="key-plus">+</span><span class="key-cap">Z</span></span>
+                    <button type="button" class="shortcut-trash-btn" title="Reset shortcut" aria-label="Reset shortcut">
+                      <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Category 4: Window Scaling -->
+          <div class="shortcuts-category-group" data-category="scaling">
+            <h2 class="shortcuts-category-title">Window &amp; Display Scaling</h2>
+            <div class="shortcuts-table-card">
+              <div class="shortcut-row" data-name="Scale Window Up Larger" data-keys="ctrl + =">
+                <span class="shortcut-action-name">Scale Window Up (+8%)</span>
+                <div class="shortcut-keys-stack">
+                  <div class="shortcut-key-item">
+                    <span class="key-combo"><span class="key-cap">Ctrl</span><span class="key-plus">+</span><span class="key-cap">+</span></span>
+                    <button type="button" class="shortcut-trash-btn" title="Reset shortcut" aria-label="Reset shortcut">
+                      <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="shortcut-row" data-name="Scale Window Down Smaller" data-keys="ctrl -">
+                <span class="shortcut-action-name">Scale Window Down (&minus;8%)</span>
+                <div class="shortcut-keys-stack">
+                  <div class="shortcut-key-item">
+                    <span class="key-combo"><span class="key-cap">Ctrl</span><span class="key-plus">+</span><span class="key-cap">&minus;</span></span>
+                    <button type="button" class="shortcut-trash-btn" title="Reset shortcut" aria-label="Reset shortcut">
+                      <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="shortcut-row" data-name="Proportional Drag Resize Zoom Wheel" data-keys="ctrl scroll drag">
+                <span class="shortcut-action-name">Proportional Zoom / Drag Resize</span>
+                <div class="shortcut-keys-stack">
+                  <div class="shortcut-key-item">
+                    <span class="key-combo"><span class="key-cap">Ctrl</span><span class="key-plus">+</span><span class="key-cap">Wheel</span></span>
+                    <button type="button" class="shortcut-trash-btn" title="Reset shortcut" aria-label="Reset shortcut">
+                      <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                    </button>
+                  </div>
+                  <div class="shortcut-key-item">
+                    <span class="key-combo"><span class="key-cap">Drag Corner</span></span>
+                    <button type="button" class="shortcut-trash-btn" title="Reset shortcut" aria-label="Reset shortcut">
+                      <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Legacy / Integration Options Card -->
+          <div class="settings-group" data-keywords="keyboard shortcuts clipboard ctrl cmd copy paste ios">
+            <h2 class="shortcuts-category-title" style="margin-top: 24px;">Options &amp; Integration</h2>
+            <div class="settings-card">
+              <div class="setting-row">
+                <div class="setting-meta">
+                  <span class="setting-title">Cross-Platform Shortcuts</span>
+                  <span class="setting-desc">Maps Windows <code>Ctrl</code> to macOS/iOS <code>Cmd</code> (e.g. Ctrl+C &rarr; Cmd+C).</span>
+                </div>
+                <div class="segmented segmented-toggle" role="radiogroup" aria-label="Cross-Platform Shortcuts">
+                  <button type="button" class="seg is-active" data-shortcut-choice="true">ON</button>
+                  <button type="button" class="seg" data-shortcut-choice="false">OFF</button>
+                </div>
+              </div>
+
+              <div class="setting-row">
+                <div class="setting-meta">
+                  <span class="setting-title">Clipboard Integration</span>
+                  <span class="setting-desc">Automatically route Windows clipboard to iPhone on <code>Ctrl+V</code>.</span>
+                </div>
+                <div class="segmented segmented-toggle" role="radiogroup" aria-label="Clipboard Integration">
+                  <button type="button" class="seg is-active" data-paste-pc-choice="true">ON</button>
+                  <button type="button" class="seg" data-paste-pc-choice="false">OFF</button>
+                </div>
+              </div>
+
+              <div class="card-action-bar">
+                <button type="button" class="ctl ctl-sm" id="btn-clear-copy-cache">Clear Clipboard Cache (Alt+R)</button>
+                <button type="button" class="ctl ctl-sm" id="btn-toggle-onscreen-kb">Toggle iOS Keyboard (Ctrl+K)</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Tab 6: Privacy & Security -->
+        <section class="tab-pane" id="tab-security" role="tabpanel" aria-labelledby="nav-tab-security" hidden>
+          <div class="settings-group" data-keywords="screen lock wake unlock stealth dim brightness sleep security">
+            <h2 class="group-title">Device Screen Control</h2>
+            <div class="settings-card">
+              <div class="setting-row">
+                <div class="setting-meta">
+                  <span class="setting-title">Quick Actions</span>
+                  <span class="setting-desc">Trigger hardware sleep and wake states on connected iPhone.</span>
+                </div>
+                <div class="btn-cluster">
+                  <button type="button" class="ctl ctl-sm ctl-accent" id="btn-wake-unlock">Wake / Unlock (Alt+U)</button>
+                  <button type="button" class="ctl ctl-sm" id="btn-lock-iphone">Lock Screen (Alt+L)</button>
+                </div>
+              </div>
+
+              <div class="setting-row">
+                <div class="setting-meta">
+                  <span class="setting-title">Stealth Dim Mode</span>
+                  <span class="setting-desc">Turns iPhone physical screen brightness down to 0% while PC mirror remains bright.</span>
+                </div>
+                <button type="button" class="ctl ctl-sm" id="btn-stealth-mode">Stealth: OFF</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="settings-group" data-keywords="pin password auto unlock wipe privacy tray minimize">
+            <h2 class="group-title">Privacy &amp; Auto-Unlock PIN</h2>
+            <div class="settings-card">
+              <div class="setting-row">
+                <div class="setting-meta">
+                  <span class="setting-title">Auto-Unlock PIN</span>
+                  <span class="setting-desc">Saved locally in encrypted browser storage for single-click wake &amp; unlock.</span>
+                </div>
+                <div class="pin-input-wrap">
+                  <input type="password" id="input-unlock-pin" placeholder="PIN" maxlength="6" autocomplete="new-password" aria-label="Unlock PIN">
+                  <button type="button" class="ctl ctl-sm icon-btn" id="btn-toggle-pin-visibility" title="Toggle PIN visibility" aria-label="Toggle PIN visibility">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" class="icon-eye">
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                      <circle cx="12" cy="12" r="3"/>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              <div class="card-action-bar">
+                <button type="button" class="ctl ctl-sm btn-danger" id="btn-wipe-privacy">Wipe Saved PIN &amp; Data</button>
+                <button type="button" class="ctl ctl-sm" id="btn-hide-to-tray">Hide to Windows Tray</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Tab 7: Connection & Troubleshooting -->
+        <section class="tab-pane" id="tab-connection" role="tabpanel" aria-labelledby="nav-tab-connection" hidden>
+          <div class="settings-group" data-keywords="wifi wireless cable usb transport connection pair devices scan">
+            <h2 class="group-title">Connection Mode &amp; Wi-Fi</h2>
+            <div class="settings-card">
+              <div class="setting-row">
+                <div class="setting-meta">
+                  <span class="setting-title">Active Transport</span>
+                  <span class="setting-desc">Select active USB cable or Wireless pairing route.</span>
+                </div>
+                <div class="segmented" role="radiogroup" aria-label="Transport Mode">
+                  <button type="button" class="seg is-active" data-transport="usb">USB Cable</button>
+                  <button type="button" class="seg" data-transport="wifi">Wi-Fi</button>
+                </div>
+              </div>
+
+              <div class="setting-row">
+                <div class="setting-meta">
+                  <span class="setting-title">Wi-Fi Status</span>
+                  <span class="setting-desc" id="wifi-status-desc">Searching for paired iPhone...</span>
+                </div>
+                <div class="btn-cluster">
+                  <button type="button" class="ctl ctl-sm" id="btn-wifi-scan">Scan Network</button>
+                  <button type="button" class="ctl ctl-sm" id="btn-wifi-pair">Pair Wi-Fi</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="settings-group" data-keywords="devices list connected refresh troubleshooting">
+            <h2 class="group-title">Connected Devices</h2>
+            <div class="settings-card">
+              <div class="card-action-bar" style="margin-top: 0; margin-bottom: 8px; border-top: none; padding-top: 2px;">
+                <button type="button" class="ctl ctl-sm" id="btn-refresh-devices">
+                  <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px; vertical-align: -1px;">
+                    <polyline points="23 4 23 10 17 10"/>
+                    <polyline points="1 20 1 14 7 14"/>
+                    <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+                  </svg>
+                  Refresh Devices
+                </button>
+              </div>
+              <ul class="device-list" id="devices-list">
+                <li class="device-empty">No device connected</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="settings-group" data-keywords="troubleshooting guide usb driver trust developer mode">
+            <h2 class="group-title">Troubleshooting Guide</h2>
+            <div class="settings-card">
+              <div style="font-size: 12px; line-height: 1.6; color: var(--muted, #9ca3af); padding: 8px 0;">
+                <p style="margin: 0 0 6px;">1. Plug in iPhone via USB and unlock it.</p>
+                <p style="margin: 0 0 6px;">2. Tap <strong>Trust This Computer</strong> on the iPhone when prompted.</p>
+                <p style="margin: 0 0 6px;">3. Ensure <strong>Developer Mode</strong> is enabled in iOS Settings &gt; Privacy &amp; Security.</p>
+                <p style="margin: 0;">4. Ensure Apple Mobile Device USB Driver is active in Windows Device Manager.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <!-- Toast for feedback -->
+  <div class="settings-toast" id="settings-toast" role="status" aria-live="polite"></div>
+
+  <!-- Client Controller Script -->
+  <script src="/js/settings-window.js?v=20261113_m4"></script>
+</body>
+</html>

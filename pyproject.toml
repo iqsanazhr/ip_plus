@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ip_plus"
+version = "1.0.0"
+authors = [{ name = "Iqsan Azhar", email = "iqsan17azhar@gmail.com" }]
+description = "ip+ - Native 60fps iPhone Mirroring and Control Platform for Windows 11 (iOS 27 Exclusive)"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "pymobiledevice3>=11.28",
+    "pywebview>=5.0",
+    "pycaw>=20230407",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["handset*"]

@@ -1,0 +1,1145 @@
+/**
+ * iPhone Link - macOS System Settings Style
+ * Design Engineering: Emil Kowalski principles
+ * - Instant 0ms for high-frequency tab navigation
+ * - Explicit properties (never transition: all)
+ * - Custom ease-out curve cubic-bezier(0.23, 1, 0.32, 1)
+ * - Button active scale(0.97) for tactile responsiveness
+ * - Never scale from scale(0); start from scale(0.95) with opacity: 0
+ * - Accessible: prefers-reduced-motion & hover: hover guards
+ */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+:root {
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --sidebar-w: 220px;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
+  font-size: 13px;
+  line-height: 1.45;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Light Mode Theme */
+[data-theme="light"],
+body[data-theme="light"] {
+  background: #f6f6f8;
+  color: #111827;
+  --bg-app: #f6f6f8;
+  --sidebar-bg: #eaebee;
+  --card-bg: #ffffff;
+  --card-border: rgba(0, 0, 0, 0.08);
+  --line-border: rgba(0, 0, 0, 0.06);
+  --item-hover: rgba(0, 0, 0, 0.05);
+  --item-active: #007aff;
+  --item-active-text: #ffffff;
+  --text-main: #111827;
+  --text-muted: #6b7280;
+  --input-bg: #ffffff;
+  --badge-bg: #f3f4f6;
+  --badge-border: rgba(0, 0, 0, 0.1);
+  --accent: #007aff;
+  --accent-hover: #0066d6;
+  --danger: #ff3b30;
+  --danger-hover: #d32f2f;
+  --switch-track: rgba(120, 120, 128, 0.28);
+  --switch-active: #34c759;
+}
+
+/* Dark Mode Theme */
+[data-theme="dark"],
+body[data-theme="dark"] {
+  background: #18181b;
+  color: #f3f4f6;
+  --bg-app: #18181b;
+  --sidebar-bg: #121215;
+  --card-bg: #222227;
+  --card-border: rgba(255, 255, 255, 0.08);
+  --line-border: rgba(255, 255, 255, 0.06);
+  --item-hover: rgba(255, 255, 255, 0.06);
+  --item-active: #0a84ff;
+  --item-active-text: #ffffff;
+  --text-main: #f3f4f6;
+  --text-muted: #9ca3af;
+  --input-bg: #18181b;
+  --badge-bg: #18181b;
+  --badge-border: rgba(255, 255, 255, 0.12);
+  --accent: #0a84ff;
+  --accent-hover: #0070e0;
+  --danger: #ff453a;
+  --danger-hover: #e0382e;
+  --switch-track: rgba(120, 120, 128, 0.36);
+  --switch-active: #30d158;
+}
+
+.settings-body {
+  background: var(--bg-app);
+  color: var(--text-main);
+}
+
+.settings-app {
+  display: flex;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background: var(--bg-app);
+}
+
+/* ==================== Window Drag Regions (pywebview) ==================== */
+.pywebview-drag-region {
+  -webkit-app-region: drag;
+  user-select: none;
+}
+
+.traffic-btn,
+.traffic-light-buttons,
+.pywebview-drag-region button,
+.pywebview-drag-region input,
+.pywebview-drag-region a,
+.sidebar-search input {
+  -webkit-app-region: no-drag;
+}
+
+/* ==================== macOS Traffic Lights ==================== */
+.mac-traffic-lights {
+  display: flex;
+  align-items: center;
+  height: 24px;
+  padding: 2px 4px 6px 4px;
+  margin-bottom: 2px;
+  flex-shrink: 0;
+}
+
+.traffic-light-buttons {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  -webkit-app-region: no-drag;
+}
+
+.traffic-btn {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 0.5px solid rgba(0, 0, 0, 0.15);
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  outline: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  -webkit-app-region: no-drag;
+  transition: filter 120ms var(--ease-out), transform 100ms var(--ease-out);
+}
+
+.traffic-btn:hover {
+  filter: brightness(0.92);
+}
+
+.traffic-btn:active {
+  transform: scale(0.92);
+  filter: brightness(0.82);
+}
+
+.traffic-close {
+  background-color: #ff5f56;
+  border-color: #e0443e;
+}
+
+.traffic-min {
+  background-color: #ffbd2e;
+  border-color: #dea123;
+}
+
+.traffic-max {
+  background-color: #27c93f;
+  border-color: #1aab29;
+}
+
+/* Subtle glyphs on hover when traffic group is hovered */
+.traffic-light-buttons:hover .traffic-close::after {
+  content: "×";
+  font-size: 9.5px;
+  line-height: 1;
+  font-weight: 700;
+  color: rgba(77, 0, 0, 0.7);
+  display: block;
+  transform: translateY(-0.5px);
+}
+
+.traffic-light-buttons:hover .traffic-min::after {
+  content: "–";
+  font-size: 9.5px;
+  line-height: 1;
+  font-weight: 700;
+  color: rgba(84, 53, 0, 0.7);
+  display: block;
+  transform: translateY(-1px);
+}
+
+.traffic-light-buttons:hover .traffic-max::after {
+  content: "+";
+  font-size: 9.5px;
+  line-height: 1;
+  font-weight: 700;
+  color: rgba(0, 56, 10, 0.7);
+  display: block;
+  transform: translateY(-0.5px);
+}
+
+/* ==================== Left Sidebar ==================== */
+.settings-sidebar {
+  width: var(--sidebar-w);
+  min-width: var(--sidebar-w);
+  max-width: var(--sidebar-w);
+  height: 100%;
+  background: var(--sidebar-bg);
+  border-right: 1px solid var(--card-border);
+  display: flex;
+  flex-direction: column;
+  padding: 12px 10px;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.sidebar-header {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-bottom: 2px;
+}
+
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  font-size: 13.5px;
+  color: var(--text-main);
+  padding: 2px 4px;
+}
+
+.sidebar-brand-icon {
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+.sidebar-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.sidebar-search .search-icon {
+  position: absolute;
+  left: 8px;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.sidebar-search input {
+  width: 100%;
+  height: 28px;
+  padding: 0 8px 0 28px;
+  border-radius: 6px;
+  border: 1px solid var(--card-border);
+  background: var(--card-bg);
+  color: var(--text-main);
+  font-size: 12px;
+  outline: none;
+  transition: border-color 120ms var(--ease-out), background-color 120ms var(--ease-out);
+}
+
+.sidebar-search input:focus {
+  border-color: var(--item-active);
+}
+
+.sidebar-search input::placeholder {
+  color: var(--text-muted);
+  opacity: 0.8;
+}
+
+.sidebar-nav {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-right: 2px;
+}
+
+/* High-frequency navigation is 0ms instant */
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  padding: 6px 9px;
+  border: none;
+  background: transparent;
+  color: var(--text-main);
+  font-size: 12.5px;
+  font-weight: 500;
+  border-radius: 6px;
+  cursor: pointer;
+  text-align: left;
+  outline: none;
+  transition: background-color 100ms var(--ease-out), color 100ms var(--ease-out);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .nav-item:hover:not(.is-active) {
+    background: var(--item-hover);
+  }
+}
+
+.nav-item:active {
+  transform: scale(0.98);
+  transition: transform 100ms var(--ease-out);
+}
+
+.nav-item.is-active {
+  background: var(--item-active);
+  color: var(--item-active-text);
+  font-weight: 600;
+}
+
+.nav-icon {
+  font-size: 14px;
+  width: 18px;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+/* ==================== macOS Sidebar Squircle Icon Tiles ==================== */
+.nav-icon-tile {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: #ffffff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.14);
+}
+
+.nav-icon-tile svg {
+  display: block;
+  width: 13px;
+  height: 13px;
+}
+
+.tile-purple {
+  background: linear-gradient(135deg, #bf5af2, #af52de);
+}
+
+.tile-blue {
+  background: linear-gradient(135deg, #0a84ff, #007aff);
+}
+
+.tile-pink {
+  background: linear-gradient(135deg, #ff375f, #ff2d55);
+}
+
+.tile-teal {
+  background: linear-gradient(135deg, #59adc4, #008299);
+}
+
+.tile-orange {
+  background: linear-gradient(135deg, #ff9f0a, #ff9500);
+}
+
+.tile-indigo {
+  background: linear-gradient(135deg, #5e5ce6, #5856d6);
+}
+
+.tile-green {
+  background: linear-gradient(135deg, #30d158, #248a3d);
+}
+
+.nav-text {
+  flex: 1 1 auto;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sidebar-footer {
+  padding-top: 8px;
+  border-top: 1px solid var(--line-border);
+  font-size: 11px;
+  color: var(--text-muted);
+  text-align: center;
+  flex-shrink: 0;
+}
+
+/* ==================== Right Content Area ==================== */
+.settings-content {
+  flex: 1 1 auto;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--bg-app);
+}
+
+.content-header {
+  padding: 16px 24px 10px;
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--line-border);
+}
+
+.category-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  color: var(--text-main);
+}
+
+.content-scroll {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 16px 24px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* Tab Pane Transitions - Emil Kowalski 120ms subtle fade */
+.tab-pane {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 120ms var(--ease-out), transform 120ms var(--ease-out);
+}
+
+.tab-pane[hidden] {
+  display: none !important;
+  opacity: 0;
+  transform: translateY(2px);
+}
+
+/* ==================== Grouped Cards ==================== */
+.settings-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.settings-group.is-filtered-out {
+  display: none !important;
+}
+
+.group-title {
+  margin: 0 0 2px 4px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+}
+
+.settings-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+  padding: 2px 14px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.setting-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--line-border);
+  gap: 16px;
+}
+
+.setting-row:last-child {
+  border-bottom: none;
+}
+
+.setting-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex: 1 1 auto;
+}
+
+.setting-title {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-main);
+}
+
+.setting-desc {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  line-height: 1.35;
+}
+
+.badge-key {
+  display: inline-block;
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-size: 10.5px;
+  font-family: monospace;
+  background: var(--badge-bg);
+  border: 1px solid var(--badge-border);
+  color: var(--text-main);
+}
+
+/* ==================== Toggle Switch ==================== */
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 40px;
+  height: 22px;
+  flex-shrink: 0;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+  position: absolute;
+}
+
+.toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  inset: 0;
+  background-color: var(--switch-track);
+  border-radius: 22px;
+  transition: background-color 160ms var(--ease-out);
+}
+
+.toggle-slider::before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 2px;
+  bottom: 2px;
+  background-color: #ffffff;
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.28);
+  transition: transform 160ms var(--ease-out);
+}
+
+.toggle-switch input:checked + .toggle-slider {
+  background-color: var(--switch-active);
+}
+
+.toggle-switch input:checked + .toggle-slider::before {
+  transform: translateX(18px);
+}
+
+.toggle-switch input:focus-visible + .toggle-slider {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* ==================== Segmented Controls ==================== */
+.segmented {
+  display: inline-flex;
+  background: var(--input-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 7px;
+  padding: 2px;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.seg {
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 11.5px;
+  font-weight: 500;
+  padding: 4px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  outline: none;
+  transition: background-color 120ms var(--ease-out), color 120ms var(--ease-out);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .seg:hover:not(.is-active) {
+    color: var(--text-main);
+  }
+}
+
+.seg.is-active,
+.seg.active {
+  background: var(--card-bg);
+  color: var(--text-main);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+  font-weight: 600;
+}
+
+.seg:active {
+  transform: scale(0.97);
+  transition: transform 100ms var(--ease-out);
+}
+
+.segmented-resolution .seg {
+  padding: 4px 7px;
+  font-size: 11px;
+}
+
+/* ==================== Buttons & Action Bars ==================== */
+.ctl {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 5px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: 6px;
+  border: 1px solid var(--card-border);
+  background: var(--card-bg);
+  color: var(--text-main);
+  cursor: pointer;
+  outline: none;
+  transition: background-color 120ms var(--ease-out), border-color 120ms var(--ease-out), transform 100ms var(--ease-out);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .ctl:hover {
+    background: var(--item-hover);
+    border-color: rgba(255, 255, 255, 0.18);
+  }
+}
+
+.ctl:active {
+  transform: scale(0.97);
+}
+
+.ctl-sm {
+  padding: 3px 8px;
+  font-size: 11px;
+}
+
+.ctl-accent, .ctl-primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #ffffff;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .ctl-accent:hover, .ctl-primary:hover {
+    background: var(--accent-hover);
+    border-color: var(--accent-hover);
+  }
+}
+
+.btn-danger {
+  color: var(--danger);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .btn-danger:hover {
+    background: rgba(255, 59, 48, 0.1);
+    border-color: var(--danger);
+  }
+}
+
+.card-action-bar {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 8px 0;
+  border-top: 1px solid var(--line-border);
+  margin-top: 4px;
+}
+
+.btn-cluster, .row-action-cluster, .slider-val-cluster {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* ==================== Audio Badge ==================== */
+.audio-badge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 10px;
+  background: var(--badge-bg);
+  border: 1px solid var(--badge-border);
+  color: var(--text-muted);
+  transition: color 120ms var(--ease-out), border-color 120ms var(--ease-out), background-color 120ms var(--ease-out);
+}
+
+.audio-badge.active {
+  color: #34c759;
+  border-color: rgba(52, 199, 89, 0.35);
+  background: rgba(52, 199, 89, 0.12);
+}
+
+.audio-badge.connecting {
+  color: #ff9f0a;
+  border-color: rgba(255, 159, 10, 0.35);
+  background: rgba(255, 159, 10, 0.12);
+}
+
+/* ==================== Sliders & Crop Grid ==================== */
+input[type="range"] {
+  width: 140px;
+  height: 4px;
+  border-radius: 2px;
+  accent-color: var(--accent);
+  cursor: pointer;
+  background: var(--line-border);
+  outline: none;
+}
+
+.val-pill {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 11.5px;
+  min-width: 38px;
+  text-align: right;
+  color: var(--text-main);
+}
+
+.crop-grid-two-col {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px 14px;
+  padding: 8px 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.crop-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  padding: 6px 10px;
+  background: var(--input-bg);
+  border: 1px solid var(--line-border);
+  border-radius: 8px;
+  box-sizing: border-box;
+}
+
+.crop-label {
+  font-size: 12px;
+  font-weight: 500;
+  width: 42px;
+  min-width: 42px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.crop-row input[type="range"] {
+  flex: 1 1 0%;
+  min-width: 40px;
+  width: 100%;
+  height: 4px;
+  border-radius: 2px;
+  accent-color: var(--accent);
+  cursor: pointer;
+  background: var(--switch-track);
+  outline: none;
+  margin: 0;
+}
+
+.crop-num {
+  width: 44px;
+  min-width: 44px;
+  height: 24px;
+  padding: 0 4px;
+  border-radius: 5px;
+  border: 1px solid var(--card-border);
+  background: var(--card-bg);
+  color: var(--text-main);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 11.5px;
+  text-align: center;
+  outline: none;
+  flex-shrink: 0;
+  transition: border-color 120ms var(--ease-out);
+  box-sizing: border-box;
+}
+
+.crop-num:focus {
+  border-color: var(--accent);
+}
+
+/* ==================== Modern Shortcuts View (Linear / macOS Clean Standard) ==================== */
+.shortcuts-view-header {
+  margin-bottom: 18px;
+}
+
+.shortcuts-view-title {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.4px;
+  color: var(--text-main);
+  margin: 0 0 4px 0;
+}
+
+.shortcuts-view-subtitle {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.shortcuts-search-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin-bottom: 22px;
+}
+
+.shortcuts-search-box .search-icon {
+  position: absolute;
+  left: 12px;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.shortcuts-search-input {
+  width: 100%;
+  height: 38px;
+  padding: 0 14px 0 36px;
+  border-radius: 10px;
+  border: 1px solid var(--card-border);
+  background: var(--input-bg);
+  color: var(--text-main);
+  font-size: 13px;
+  outline: none;
+  transition: border-color 140ms var(--ease-out), box-shadow 140ms var(--ease-out);
+}
+
+.shortcuts-search-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(10, 132, 255, 0.15);
+}
+
+.shortcuts-category-group {
+  margin-bottom: 24px;
+  transition: opacity 160ms var(--ease-out);
+}
+
+.shortcuts-category-group[hidden] {
+  display: none !important;
+}
+
+.shortcuts-category-title {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text-main);
+  margin: 0 0 8px 4px;
+  letter-spacing: -0.1px;
+}
+
+.shortcuts-table-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+}
+
+.shortcut-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 11px 16px;
+  border-bottom: 1px solid var(--line-border);
+  transition: background-color 120ms var(--ease-out);
+}
+
+.shortcut-row:last-child {
+  border-bottom: none;
+}
+
+.shortcut-row[hidden] {
+  display: none !important;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .shortcut-row:hover {
+    background-color: var(--item-hover);
+  }
+}
+
+.shortcut-action-name {
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--text-main);
+  letter-spacing: -0.15px;
+}
+
+.shortcut-keys-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+.shortcut-key-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.key-combo {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.key-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  border-radius: 6px;
+  background: var(--badge-bg);
+  border: 1px solid var(--badge-border);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--text-main);
+  line-height: 1;
+}
+
+.key-plus {
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 500;
+  padding: 0 1px;
+}
+
+.shortcut-trash-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  opacity: 0.55;
+  transition: opacity 120ms var(--ease-out), color 120ms var(--ease-out), background-color 120ms var(--ease-out);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .shortcut-trash-btn:hover {
+    opacity: 1;
+    color: var(--danger, #ff453a);
+    background-color: rgba(255, 69, 58, 0.1);
+  }
+}
+
+.shortcuts-empty-state {
+  display: none;
+  text-align: center;
+  padding: 36px 16px;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.shortcuts-empty-state.is-visible {
+  display: block;
+}
+
+/* ==================== Legacy Shortcuts Grid fallback ==================== */
+.shortcuts-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 6px 0;
+}
+
+.shortcut-pill {
+  padding: 3px 8px;
+  background: var(--badge-bg);
+  border: 1px solid var(--badge-border);
+  border-radius: 6px;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.shortcut-pill strong {
+  color: var(--text-main);
+  margin-right: 2px;
+}
+
+/* ==================== PIN & Devices ==================== */
+.pin-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.pin-input-wrap .icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  color: var(--text-muted);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: color 120ms var(--ease-out), background-color 120ms var(--ease-out);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .pin-input-wrap .icon-btn:hover {
+    color: var(--text-main);
+    background: var(--item-hover);
+  }
+}
+
+.pin-input-wrap input {
+  width: 90px;
+  height: 28px;
+  padding: 0 8px;
+  border-radius: 6px;
+  border: 1px solid var(--card-border);
+  background: var(--input-bg);
+  color: var(--text-main);
+  font-family: monospace;
+  letter-spacing: 2px;
+  font-size: 13px;
+  outline: none;
+}
+
+.pin-input-wrap input:focus {
+  border-color: var(--accent);
+}
+
+.device-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.device-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 8px;
+  background: var(--input-bg);
+  border-radius: 6px;
+  border: 1px solid var(--line-border);
+  font-size: 12px;
+}
+
+.device-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.device-icon {
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+.device-empty {
+  font-size: 12px;
+  color: var(--text-muted);
+  padding: 6px 0;
+  font-style: italic;
+}
+
+/* ==================== Settings Toast ==================== */
+.settings-toast {
+  position: fixed;
+  bottom: 16px;
+  right: 16px;
+  background: rgba(30, 30, 35, 0.92);
+  color: #ffffff;
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  font-size: 12px;
+  font-weight: 500;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(8px) scale(0.95);
+  transition: opacity 160ms var(--ease-out), transform 160ms var(--ease-out);
+  z-index: 1000;
+}
+
+.settings-toast.is-visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+/* ==================== Thin Custom Scrollbars ==================== */
+.content-scroll::-webkit-scrollbar,
+.sidebar-nav::-webkit-scrollbar {
+  width: 6px;
+}
+
+.content-scroll::-webkit-scrollbar-track,
+.sidebar-nav::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.content-scroll::-webkit-scrollbar-thumb,
+.sidebar-nav::-webkit-scrollbar-thumb {
+  background: rgba(120, 120, 128, 0.25);
+  border-radius: 3px;
+}
+
+.content-scroll::-webkit-scrollbar-thumb:hover,
+.sidebar-nav::-webkit-scrollbar-thumb:hover {
+  background: rgba(120, 120, 128, 0.45);
+}
+
+/* ==================== Reduced Motion Safety ==================== */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

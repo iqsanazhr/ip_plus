@@ -1,0 +1,42 @@
+/**
+ * iPhone Link - Responsive & Accessibility Rules
+ */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .dynamic-island-notch,
+  .dynamic-island-notch .island-btn,
+  .phone-resize-grip,
+  .toast-notification,
+  .hw-btn,
+  .app.is-real-phone:not(.is-landscape) #phone-screen,
+  .app.is-real-phone.is-landscape #phone-screen {
+    transition: none !important;
+  }
+
+  .island-btn,
+  .phone-resize-grip,
+  .toast-notification,
+  .hw-btn {
+    transform: none !important;
+  }
+}
+
+@media (hover: none) and (pointer: coarse) {
+  /* Prevent sticky hover on touch interactions */
+  .bar-btn:hover,
+  .icon-btn:hover,
+  .nav-btn:hover,
+  .ctl:hover {
+    background: inherit;
+    transform: none;
+  }
+}
