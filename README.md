@@ -22,6 +22,11 @@
 </p>
 
 <p align="center">
+  <a href="https://github.com/iqsanazhr/ip_plus/releases/latest"><img src="https://img.shields.io/badge/Download-Windows%20Installer%20(.EXE)-0078D4?style=for-the-badge&logo=windows&logoColor=white" alt="Download Windows Installer" /></a>
+  <a href="https://github.com/iqsanazhr/ip_plus/releases/latest"><img src="https://img.shields.io/badge/Download-Standalone%20Portable%20(.ZIP)-10B981?style=for-the-badge&logo=zip&logoColor=white" alt="Download Standalone Portable" /></a>
+</p>
+
+<p align="center">
   <img src="assets/preview.png" alt="ip+ Floating Phone &amp; macOS Style Settings Preview" width="100%" />
 </p>
 
@@ -231,13 +236,40 @@ Proyek **ip+** merupakan hasil pengembangan, pembaruan, dan refaktorisasi terbuk
 1. **Sistem Operasi**: Windows 10 atau Windows 11 (64-bit).
 2. **Perangkat**: Apple iPhone yang menjalankan **iOS 27 saja** (eksklusif iOS 27, terverifikasi penuh pada iOS 27.0.1). Versi iOS selain 27 tidak didukung.
 3. **Kabel Koneksi**: Kabel data USB-to-Lightning atau USB-C ke PC.
-4. **Driver**: Apple Mobile Device Support / iTunes (atau terpasang otomatis via Windows Update).
+4. **Layanan Apple (Driver)**: Pastikan aplikasi **Apple Devices** (gratis di Microsoft Store) atau **iTunes for Windows** telah terpasang agar layanan konektivitas USB iPhone aktif di Windows.
 
-### <img src="assets/icons/play.svg" width="18" height="18" align="center" /> Cara Menjalankan
-1. Hubungkan iPhone ke PC menggunakan kabel data USB dan pilih **"Percayai Komputer Ini"** (*Trust This Computer*) pada layar iPhone Anda.
-2. Jalankan aplikasi melalui salah satu cara berikut:
-   - **Klik Ganda `ip+.exe`** di folder aplikasi (atau icon **`ip+`** di Desktop Anda).
-   - Aplikasi akan langsung melayang di tengah layar Anda tanpa jendela konsol hitam CMD.
+---
+
+### <img src="assets/icons/play.svg" width="18" height="18" align="center" /> Pilihan Instalasi
+
+#### Cara 1: Menggunakan Windows Installer (.EXE) — *Paling Mudah untuk Pengguna Umum*
+1. Unduh **`ip+_Setup_v1.0.0.exe`** dari tab [GitHub Releases](https://github.com/iqsanazhr/ip_plus/releases/latest).
+2. Jalankan berkas installer dan ikuti petunjuk pemasangan hingga selesai.
+3. Hubungkan iPhone ke PC via kabel USB, ketuk **"Percayai Komputer Ini"** (*Trust This Computer*) pada layar ponsel Anda.
+4. Buka **ip+** melalui shortcut di Desktop atau Start Menu. Aplikasi siap digunakan secara instan tanpa perlu memasang Python!
+
+#### Cara 2: Menggunakan Standalone Portable (.ZIP) — *Tanpa Instalasi*
+1. Unduh **`ip_plus-Win64-Standalone-EXE-v1.0.0.zip`** dari tab [GitHub Releases](https://github.com/iqsanazhr/ip_plus/releases/latest).
+2. Ekstrak arsip ZIP ke folder pilihan Anda.
+3. Hubungkan iPhone via kabel USB dan ketuk **"Percayai"** (*Trust*).
+4. Klik ganda **`ip+.exe`**. Anda juga dapat menjalankan `scripts\Create-Desktop-Shortcut.bat` untuk membuat icon di Desktop secara otomatis.
+
+#### Cara 3: Menjalankan dari Kode Sumber (*For Developers*)
+```powershell
+# 1. Clone repositori
+git clone https://github.com/iqsanazhr/ip_plus.git
+cd ip_plus
+
+# 2. Buat & aktifkan virtual environment Python 3.12
+python -m venv venv
+.\venv\Scripts\Activate.ps1
+
+# 3. Pasang dependensi
+pip install -r requirements.txt
+
+# 4. Jalankan aplikasi
+python -m handset.gui
+```
 
 ---
 

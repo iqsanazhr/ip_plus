@@ -68,7 +68,7 @@ function Invoke-PrivacySanityCheck {
 # ======================================================================
 # PACKAGE 1: Smart Auto-Bootstrapping Portable ZIP
 # ======================================================================
-$PackageName = "iPhone-Link-Portable-$Version"
+$PackageName = "ip_plus-Portable-$Version"
 $TargetDir = Join-Path $ReleaseBase $PackageName
 $ZipOutput = Join-Path $ReleaseBase "$PackageName.zip"
 
@@ -109,14 +109,14 @@ $ZipItem = Get-Item $ZipOutput
 $PortableSizeMB = [math]::Round($ZipItem.Length / 1048576, 2)
 
 # ======================================================================
-# PACKAGE 2: Standalone Windows Executable (iPhone Link.exe)
+# PACKAGE 2: Standalone Windows Executable (ip+.exe)
 # ======================================================================
-$ExePackageName = "iPhone-Link-Win64-Standalone-EXE-$Version"
+$ExePackageName = "ip_plus-Win64-Standalone-EXE-$Version"
 $ExeTargetDir = Join-Path $ReleaseBase $ExePackageName
 $ExeZipOutput = Join-Path $ReleaseBase "$ExePackageName.zip"
 
 if (-not $SkipExe) {
-    Write-Host "[5/6] Building Package 2 (Standalone iPhone Link.exe via PyInstaller)..." -ForegroundColor Green
+    Write-Host "[5/6] Building Package 2 (Standalone ip+.exe via PyInstaller)..." -ForegroundColor Green
     $VenvPy = Join-Path $RootDir "venv\Scripts\python.exe"
     if (-not (Test-Path $VenvPy)) {
         throw "Local venv Python not found at $VenvPy. Create venv first before building Standalone EXE."
@@ -128,7 +128,7 @@ if (-not $SkipExe) {
         & $VenvPy -m pip install pyinstaller --quiet
     }
 
-    $SpecPath = Join-Path $RootDir "packaging\iphone_link.spec"
+    $SpecPath = Join-Path $RootDir "packaging\ip_plus.spec"
     $BuildWorkDir = Join-Path $RootDir "build\pyinstaller_work"
     $BuildDistDir = Join-Path $RootDir "build\pyinstaller_dist"
     if (Test-Path $BuildDistDir) { Remove-Item -Recurse -Force $BuildDistDir }
@@ -139,9 +139,10 @@ if (-not $SkipExe) {
         & $VenvPy -m PyInstaller --noconfirm --clean --workpath $BuildWorkDir --distpath $BuildDistDir $SpecPath
     }
     else {
-        $IconArg = Join-Path $RootDir "assets\iphone_link.ico"
+        $IconArg = Join-Path $RootDir "assets\ip_plus.ico"
+        if (-not (Test-Path $IconArg)) { $IconArg = Join-Path $RootDir "assets\iphone_link.ico" }
         & $VenvPy -m PyInstaller --noconfirm --clean --onedir --windowed `
-            --name "iPhone Link" `
+            --name "ip+" `
             --icon $IconArg `
             --workpath $BuildWorkDir `
             --distpath $BuildDistDir `
@@ -181,8 +182,8 @@ if (-not $SkipExe) {
         throw "PyInstaller build failed with exit code $LASTEXITCODE"
     }
 
-    $BuiltDir = Join-Path $BuildDistDir "iPhone Link"
-    $BuiltExe = Join-Path $BuiltDir "iPhone Link.exe"
+    $BuiltDir = Join-Path $BuildDistDir "ip+"
+    $BuiltExe = Join-Path $BuiltDir "ip+.exe"
     if (-not (Test-Path $BuiltExe)) {
         throw "Standalone executable was not generated at $BuiltExe"
     }
@@ -215,6 +216,27 @@ if (-not $SkipExe) {
     & $VenvPy -c "import zipfile, pathlib, sys; src = pathlib.Path(sys.argv[1]); zpath = pathlib.Path(sys.argv[2]); zf = zipfile.ZipFile(zpath, 'w', zipfile.ZIP_DEFLATED, compresslevel=6); [zf.write(f, str(f.relative_to(src.parent))) for f in src.rglob('*') if f.is_file()]; zf.close()" $ExeTargetDir $ExeZipOutput
     $ExeZipItem = Get-Item $ExeZipOutput
     $ExeSizeMB = [math]::Round($ExeZipItem.Length / 1048576, 2)
+
+    # PACKAGE 3: Inno Setup Windows Installer (ip+_Setup_v1.0.0.exe)
+    $IsccCandidate = @(
+        (Join-Path $env:LOCALAPPDATA "Programs\Inno Setup 6\ISCC.exe"),
+        "C:\Program Files (x86)\Inno Setup 6\ISCC.exe",
+        "C:\Program Files\Inno Setup 6\ISCC.exe"
+    )
+    $IsccExe = $null
+    foreach ($c in $IsccCandidate) {
+        if (Test-Path $c) { $IsccExe = $c; break }
+    }
+    $InstallerOutput = Join-Path $ReleaseBase "ip+_Setup_$Version.exe"
+    $InstSizeMB = 0
+    if ($IsccExe -and (Test-Path (Join-Path $RootDir "installer\ip_plus_setup.iss"))) {
+        Write-Host "      Building Package 3 (Inno Setup Installer Wizard)..." -ForegroundColor Green
+        & $IsccExe (Join-Path $RootDir "installer\ip_plus_setup.iss") | Out-Null
+        if (Test-Path $InstallerOutput) {
+            $InstItem = Get-Item $InstallerOutput
+            $InstSizeMB = [math]::Round($InstItem.Length / 1048576, 2)
+        }
+    }
 }
 
 # Tahap 55: Zero-Secret Archive & Binary Audit + Legacy Global WebView2 Cache Cleanup
@@ -237,7 +259,7 @@ print('      [AUDIT OK] 0% private files or PIN artifacts inside release ZIP arc
     if ($LASTEXITCODE -ne 0) { throw "Release archive zero-secret audit failed!" }
 }
 
-$RunningGui = Get-Process -Name "iPhone Link" -ErrorAction SilentlyContinue
+$RunningGui = Get-Process -Name "ip+" -ErrorAction SilentlyContinue
 if (-not $RunningGui) {
     foreach ($legacyCache in @(
         (Join-Path $HOME ".pane_webview_storage"),
@@ -256,5 +278,8 @@ Write-Host "   [SUCCESS] RELEASE PACKAGES READY FOR GITHUB RELEASES!" -Foregroun
 Write-Host "   1) Portable ZIP   : $ZipOutput [$PortableSizeMB MB]" -ForegroundColor White
 if (-not $SkipExe -and (Test-Path $ExeZipOutput)) {
     Write-Host "   2) Standalone EXE : $ExeZipOutput [$ExeSizeMB MB]" -ForegroundColor White
+}
+if (Test-Path $InstallerOutput) {
+    Write-Host "   3) Windows Setup  : $InstallerOutput [$InstSizeMB MB]" -ForegroundColor White
 }
 Write-Host "======================================================================" -ForegroundColor Cyan
