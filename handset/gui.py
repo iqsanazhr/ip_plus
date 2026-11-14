@@ -27,4 +27,8 @@ from handset.gui import (
 )
 
 if __name__ == "__main__":
-    main()
+    if "--server-child" in sys.argv or "--server-only" in sys.argv:
+        from handset.server import main as server_main
+        server_main()
+    else:
+        main()

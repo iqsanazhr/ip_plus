@@ -48,6 +48,11 @@ def _auto_unblock_zone_identifiers() -> None:
 
 def main() -> None:
     """Main launcher entry point for the native GUI window."""
+    if "--server-child" in sys.argv or "--server-only" in sys.argv:
+        from handset.server import main as server_main
+        server_main()
+        return
+
     _auto_unblock_zone_identifiers()
     set_process_app_user_model_id("iqsanazhr.ipplus.desktop.1.0")
 

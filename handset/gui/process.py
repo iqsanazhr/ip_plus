@@ -81,42 +81,65 @@ def is_port_listening(host: str, port: int) -> bool:
 
 
 def ensure_backend_server_running(host: str = DEFAULT_HOST, port: int = DEFAULT_PORT, timeout: float = 10.0) -> None:
-    """Spawn backend server child process in background if not already running."""
+    """Ensure backend server is running via in-process background daemon thread or child process."""
     global _SERVER_PROCESS, _SERVER_JOB_OBJECT
 
     if is_port_listening(host, port):
         return
 
-    python_exe = sys.executable
-    cmd = [python_exe, "-m", "handset", "--server-child", "--host", host, "--port", str(port)]
-
-    creationflags = 0x08000000 if sys.platform == "win32" else 0  # CREATE_NO_WINDOW
-    env = os.environ.copy()
-    env["PYTHONUNBUFFERED"] = "1"
-
-    proc = subprocess.Popen(
-        cmd,
-        cwd=str(REPO_ROOT),
-        creationflags=creationflags,
-        env=env,
-        stdout=subprocess.DEVNULL,
-        stderr=subprocess.DEVNULL,
-    )
-    _SERVER_PROCESS = proc
-
-    job = make_child_job_object()
-    if job and sys.platform == "win32":
+    is_frozen = getattr(sys, "frozen", False)
+    if is_frozen:
+        # In frozen standalone executable (PyInstaller), run HTTP server in a daemon thread in-process!
+        # This completely prevents recursive fork bombs, port race conditions, and antivirus blocks.
         try:
-            ctypes.windll.kernel32.AssignProcessToJobObject(job, wintypes.HANDLE(proc._handle))
-            _SERVER_JOB_OBJECT = job
+            from handset.server import run_server_in_thread
+            run_server_in_thread(host, port)
+        except Exception as e:
+            print("[iPhoneLink GUI] In-process server start error:", e)
+    else:
+        python_exe = sys.executable
+        cmd = [python_exe, "-m", "handset", "--server-child", "--host", host, "--port", str(port)]
+
+        creationflags = 0x08000000 if sys.platform == "win32" else 0  # CREATE_NO_WINDOW
+        env = os.environ.copy()
+        env["PYTHONUNBUFFERED"] = "1"
+
+        try:
+            proc = subprocess.Popen(
+                cmd,
+                cwd=str(REPO_ROOT),
+                creationflags=creationflags,
+                env=env,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            )
+            _SERVER_PROCESS = proc
+
+            job = make_child_job_object()
+            if job and sys.platform == "win32":
+                try:
+                    ctypes.windll.kernel32.AssignProcessToJobObject(job, wintypes.HANDLE(proc._handle))
+                    _SERVER_JOB_OBJECT = job
+                except Exception:
+                    pass
         except Exception:
-            pass
+            # Fallback to in-process server if subprocess cannot be spawned
+            from handset.server import run_server_in_thread
+            run_server_in_thread(host, port)
 
     start_t = time.time()
     while time.time() - start_t < timeout:
         if is_port_listening(host, port):
             return
-        time.sleep(0.1)
+        time.sleep(0.05)
+
+    # Final fallback if subprocess didn't bind port in time
+    if not is_port_listening(host, port):
+        try:
+            from handset.server import run_server_in_thread
+            run_server_in_thread(host, port)
+        except Exception:
+            pass
 
 
 def shutdown_backend_server() -> None:
@@ -132,3 +155,9 @@ def shutdown_backend_server() -> None:
             except Exception:
                 pass
         _SERVER_PROCESS = None
+
+    try:
+        from handset.server import shutdown_in_process_server
+        shutdown_in_process_server()
+    except Exception:
+        pass

@@ -10,6 +10,7 @@ import re
 import socket
 import sys
 import subprocess
+import threading
 import time
 import urllib.request
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -1667,6 +1668,43 @@ def create_http_server(host: str = HOST, port: int = PORT) -> SingleServer:
 
         threading.Thread(target=_restore_audio_async, name="handset-audio-restore", daemon=True).start()
     return server
+
+
+_IN_PROCESS_SERVER: SingleServer | None = None
+_IN_PROCESS_SERVER_LOCK = threading.Lock()
+
+
+def run_server_in_thread(host: str = HOST, port: int = PORT) -> None:
+    """Start local backend HTTP server in a background daemon thread."""
+    global _IN_PROCESS_SERVER
+    with _IN_PROCESS_SERVER_LOCK:
+        if _IN_PROCESS_SERVER is not None:
+            return
+        server = create_http_server(host=host, port=port)
+        _IN_PROCESS_SERVER = server
+        t = threading.Thread(
+            target=server.serve_forever,
+            daemon=True,
+            name="handset-inprocess-server",
+        )
+        t.start()
+
+
+def shutdown_in_process_server() -> None:
+    """Shutdown in-process HTTP server if running."""
+    global _IN_PROCESS_SERVER
+    with _IN_PROCESS_SERVER_LOCK:
+        if _IN_PROCESS_SERVER is not None:
+            try:
+                _IN_PROCESS_SERVER.shutdown()
+                _IN_PROCESS_SERVER.server_close()
+            except Exception:
+                pass
+            _IN_PROCESS_SERVER = None
+    try:
+        audio_manager.shutdown()
+    except Exception:
+        pass
 
 
 def serve(host: str = HOST, port: int = PORT) -> None:
