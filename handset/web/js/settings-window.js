@@ -208,6 +208,16 @@
       });
     }
 
+    const btnResetRealPhoneScale = document.querySelector("#btn-reset-real-phone-scale");
+    if (btnResetRealPhoneScale) {
+      btnResetRealPhoneScale.addEventListener("click", async () => {
+        if (window.pywebview?.api?.reset_real_phone_scale) {
+          await window.pywebview.api.reset_real_phone_scale();
+        }
+        showToast("Ukuran Real Phone di-reset ke 100%");
+      });
+    }
+
     // 2b. Stream Resolution & Quality
     const savedResolution = localStorage.getItem("pane-resolution") || "1080p";
     applyResolutionButtons(savedResolution);
@@ -337,6 +347,70 @@
       broadcastChange("crop-preview", savedCrop);
       showToast("Crop reset to 0px");
     });
+
+    // 5b. Screen Recording Folder Controls
+    const recordingFolderInput = document.querySelector("#recording-folder-input");
+    const btnBrowseRecording = document.querySelector("#btn-browse-recording-folder");
+    const btnOpenRecording = document.querySelector("#btn-open-recording-folder");
+
+    async function loadRecordingFolder() {
+      try {
+        let folder = "";
+        if (window.pywebview?.api?.get_recording_folder) {
+          const res = await window.pywebview.api.get_recording_folder();
+          if (res && res.folder) folder = res.folder;
+        } else {
+          const res = await apiGet("/api/recording/folder");
+          if (res && res.folder) folder = res.folder;
+        }
+        if (folder && recordingFolderInput) {
+          recordingFolderInput.value = folder;
+        }
+      } catch (_) {}
+    }
+    loadRecordingFolder();
+
+    if (btnBrowseRecording) {
+      btnBrowseRecording.addEventListener("click", async () => {
+        try {
+          if (window.pywebview?.api?.choose_recording_folder) {
+            const res = await window.pywebview.api.choose_recording_folder();
+            if (res && res.success && res.folder) {
+              if (recordingFolderInput) recordingFolderInput.value = res.folder;
+              showToast("Folder rekaman berhasil diubah");
+            }
+          } else {
+            const current = recordingFolderInput ? recordingFolderInput.value : "";
+            const newFolder = prompt("Masukkan path folder penyimpanan rekaman video:", current);
+            if (newFolder && newFolder.trim()) {
+              const trimmed = newFolder.trim();
+              const res = await apiPost("/api/recording/folder", { folder: trimmed });
+              if (res && res.folder) {
+                if (recordingFolderInput) recordingFolderInput.value = res.folder;
+                showToast("Folder rekaman berhasil diubah");
+              }
+            }
+          }
+        } catch (err) {
+          showToast("Gagal memilih folder: " + err.message);
+        }
+      });
+    }
+
+    if (btnOpenRecording) {
+      btnOpenRecording.addEventListener("click", async () => {
+        try {
+          if (window.pywebview?.api?.open_recording_folder) {
+            await window.pywebview.api.open_recording_folder();
+          } else {
+            await apiPost("/api/recording/open", {});
+          }
+          showToast("Membuka folder rekaman...");
+        } catch (err) {
+          showToast("Gagal membuka folder: " + err.message);
+        }
+      });
+    }
 
     // 6. Audio Routing Controls
     const audioStatusBadge = document.querySelector("#audio-status-badge");

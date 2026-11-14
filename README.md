@@ -150,8 +150,16 @@ sequenceDiagram
 - Menurunkan kecerahan layar iPhone fisik menjadi $0\%$ (gelap total di meja) untuk menjaga privasi dan menjaga suhu baterai tetap dingin selama *mirroring*.
 - Membangunkan layar dan memasukkan kode PIN secara otomatis via USB HID dengan shortcut `Alt+U`.
 
-### 8. <img src="assets/icons/settings.svg" width="18" height="18" align="center" /> Jendela Pengaturan Modern (macOS Style)
-- Jendela pengaturan mandiri (*standalone window*) terpisah bergaya macOS Ventura/Sonoma dengan tab navigasi bersih, pencarian shortcut instan, dan konfigurasi performa.
+### 8. <img src="assets/icons/camera.svg" width="18" height="18" align="center" /> Native 60 FPS Screen Recording (`Alt+R`) &amp; Custom Storage
+- Merekam video layar iPhone secara langsung dari kanvas perangkat keras berkecepatan 60 FPS dengan kompresi WebM/MP4 berkualitas tinggi ($8\text{ Mbps}$).
+- Folder penyimpanan video dapat dikustomisasi secara bebas melalui menu Pengaturan (*native Windows folder picker*), dilengkapi notifikasi *toast* dan tombol pintas **Buka Folder** instan pasca-rekam.
+
+### 9. <img src="assets/icons/smartphone.svg" width="18" height="18" align="center" /> Persistent Real Phone Scaling &amp; Aspect Lock (`Alt+P`)
+- Mode bodi melayang transparan penuh (*borderless floating chassis*) dengan rasio skala yang tersimpan otomatis (`realPhoneScaleRatio`).
+- Ukuran kustom tidak akan pernah ter-reset ke ukuran awal saat jendela dipindah, diminimalkan, diputar ke Landscape, atau dibuka ulang. Tersedia tombol reset sekali klik ke ukuran asli ($100\%$).
+
+### 10. <img src="assets/icons/settings.svg" width="18" height="18" align="center" /> Jendela Pengaturan Modern (macOS Style)
+- Jendela pengaturan mandiri (*standalone window*) terpisah bergaya macOS Ventura/Sonoma dengan tab navigasi bersih, pencarian shortcut instan, pemilihan folder rekaman, dan konfigurasi performa.
 
 ---
 
@@ -188,6 +196,8 @@ Proyek **ip+** merupakan hasil pengembangan, pembaruan, dan refaktorisasi terbuk
     - Menghadirkan peluncur native tanpa jendela konsol CMD (**`ip+.exe`**).
     - Menyempurnakan sistem penempatan jendela *center screen* untuk jendela utama dan jendela pengaturan.
     - Menjamin penguncian rasio aspek fisik anti-gepeng dengan kompensasi bezel $24\text{px}$.
+    - Mengintegrasikan sistem persistensi skala & ukuran Real Phone Mode agar dimensi kustom tidak ter-reset.
+    - Membangun mesin perekaman layar native 60 FPS (`Alt+R`) dengan integrasi pemilih folder kustom dan tombol buka instan.
 
 ---
 
@@ -195,6 +205,8 @@ Proyek **ip+** merupakan hasil pengembangan, pembaruan, dan refaktorisasi terbuk
 
 | Shortcut | Aksi | Deskripsi |
 | :---: | :--- | :--- |
+| **`Alt + R`** | **<img src="assets/icons/camera.svg" width="16" height="16" align="center" /> Toggle Screen Recording** | Memulai atau menghentikan perekaman video layar 60 FPS ke folder rekaman yang dikonfigurasi. |
+| **`Alt + P`** | **<img src="assets/icons/smartphone.svg" width="16" height="16" align="center" /> Toggle Real Phone Mode** | Menyalakan/mematikan mode bodi iPhone melayang transparan bebas tombol dengan persistensi skala. |
 | **`Alt + B`** | **<img src="assets/icons/link.svg" width="16" height="16" align="center" /> 1-Click Grab Link** | Mengekstrak URL Instagram (Feeds/Reels) atau Threads langsung ke Clipboard PC dalam $\approx 1.3\text{ detik}$. |
 | **`Alt + C`** | **<img src="assets/icons/file-text.svg" width="16" height="16" align="center" /> Smart OCR Copy Text** | Menjalankan Windows Media OCR pada layar iPhone dan menyalin teks multi-paragraf ke Clipboard PC. |
 | **`Alt + V`** | **<img src="assets/icons/clipboard.svg" width="16" height="16" align="center" /> Paste PC Text to iPhone** | Mengetikkan/menginjeksikan teks dari Clipboard Windows langsung ke kolom input iOS yang aktif. |

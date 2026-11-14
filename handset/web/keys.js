@@ -365,32 +365,24 @@
           }
 
           if (isAlt && !isCtrlOrMeta) {
-            // Alt + R: Clear copy cache (Tahap 40 / 51)
+            // Alt + R: Screen Recording Toggle (Rekam Layar iPhone 60 FPS)
             if (e.code === "KeyR" || e.key === "r" || e.key === "R") {
               e.preventDefault();
               e.stopPropagation();
               ignoreKeyUpUntil = Date.now() + 400;
               pressed.clear();
               flush();
-              if (typeof window.clearViewportHistory === "function") {
-                window.clearViewportHistory();
-              } else if (typeof window.clearOcrSessionMemory === "function") {
-                window.clearOcrSessionMemory();
-              } else {
-                window._ViewportHistory = [];
-              }
-
               if (window.parent && window.parent !== window) {
                 try {
-                  window.parent.postMessage({ type: "trigger-clear-copy-cache" }, "*");
-                  if (typeof window.parent.triggerClearCopyCacheWithFeedback === "function") {
-                    window.parent.triggerClearCopyCacheWithFeedback();
+                  window.parent.postMessage({ type: "trigger-toggle-recording" }, "*");
+                  if (typeof window.parent.toggleScreenRecording === "function") {
+                    window.parent.toggleScreenRecording();
                   }
                 } catch (_) {}
-              } else if (typeof window.triggerClearCopyCacheWithFeedback === "function") {
-                window.triggerClearCopyCacheWithFeedback();
-              } else {
-                triggerClearCopyCache();
+              } else if (typeof window.toggleScreenRecording === "function") {
+                window.toggleScreenRecording();
+              } else if (typeof window.top?.toggleScreenRecording === "function") {
+                window.top.toggleScreenRecording();
               }
               return;
             }

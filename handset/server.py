@@ -145,6 +145,10 @@ DEFAULT_SETTINGS = {
     "crossPlatformShortcuts": True,
     "pastePcClipboard": True,
     "autoRotate": False,
+    "recordingFolder": str(Path.home() / "Videos" / "ip+"),
+    "realPhoneScaleRatio": 1.0,
+    "realPhonePortraitHeight": 820,
+    "realPhoneLandscapeHeight": 430,
 }
 
 def get_windows_clipboard_seq() -> int:
@@ -478,6 +482,28 @@ def save_user_settings(new_settings: dict) -> dict:
             val = str(v).lower().strip()
             if val in ("standard", "crisp"):
                 current["sharpness"] = val
+        elif k == "recordingFolder":
+            if v and isinstance(v, str) and v.strip():
+                try:
+                    folder_res = str(Path(v.strip()).resolve())
+                    current["recordingFolder"] = folder_res
+                except Exception:
+                    pass
+        elif k == "realPhoneScaleRatio":
+            try:
+                current["realPhoneScaleRatio"] = max(0.3, min(3.0, round(float(v), 4)))
+            except Exception:
+                pass
+        elif k == "realPhonePortraitHeight":
+            try:
+                current["realPhonePortraitHeight"] = max(300, min(2400, int(v)))
+            except Exception:
+                pass
+        elif k == "realPhoneLandscapeHeight":
+            try:
+                current["realPhoneLandscapeHeight"] = max(200, min(1600, int(v)))
+            except Exception:
+                pass
         elif k in current and k not in ("folderInstanceId", "isFreshFolder"):
             current[k] = v
     try:
@@ -638,6 +664,11 @@ class Handler(BaseHTTPRequestHandler):
         if path in ("/api/settings", "/api/keyboard/settings"):
             self._json(load_user_settings(persist_instance=True))
             return
+        if path == "/api/recording/folder":
+            settings = load_user_settings()
+            folder = settings.get("recordingFolder") or str(Path.home() / "Videos" / "ip+")
+            self._json({"ok": True, "folder": folder})
+            return
         if path in ("/api/audio", "/api/audio/status"):
             self._json(audio_manager.status())
             return
@@ -702,6 +733,60 @@ class Handler(BaseHTTPRequestHandler):
         if path == "/api/settings":
             saved = save_user_settings(payload)
             self._json({"ok": True, "settings": saved})
+            return
+        if path == "/api/recording/folder":
+            folder = payload.get("folder")
+            if folder and isinstance(folder, str):
+                folder_str = str(Path(folder).resolve())
+                os.makedirs(folder_str, exist_ok=True)
+                save_user_settings({"recordingFolder": folder_str})
+                self._json({"ok": True, "folder": folder_str})
+            else:
+                self._json({"ok": False, "error": "Invalid folder path"})
+            return
+        if path == "/api/recording/open":
+            settings = load_user_settings()
+            folder = settings.get("recordingFolder") or str(Path.home() / "Videos" / "ip+")
+            try:
+                os.makedirs(folder, exist_ok=True)
+                if sys.platform == "win32":
+                    os.startfile(folder)
+                self._json({"ok": True, "folder": folder})
+            except Exception as e:
+                self._json({"ok": False, "error": str(e)})
+            return
+        if path == "/api/recording/save":
+            b64_data = payload.get("data")
+            mime_type = payload.get("mimeType", "video/webm")
+            if not b64_data:
+                self._json({"ok": False, "error": "No recording data provided"})
+                return
+            try:
+                import base64
+                from datetime import datetime
+                settings = load_user_settings()
+                folder = settings.get("recordingFolder") or str(Path.home() / "Videos" / "ip+")
+                folder_path = Path(folder)
+                folder_path.mkdir(parents=True, exist_ok=True)
+                ext = ".mp4" if "mp4" in str(mime_type).lower() else ".webm"
+                ts = datetime.now().strftime("%Y%m%d_%H%M%S")
+                filename = f"ip+_recording_{ts}{ext}"
+                target_file = folder_path / filename
+                clean_data = str(b64_data)
+                if "," in clean_data:
+                    clean_data = clean_data.split(",", 1)[1]
+                file_bytes = base64.b64decode(clean_data)
+                target_file.write_bytes(file_bytes)
+                self._json({
+                    "ok": True,
+                    "success": True,
+                    "path": str(target_file),
+                    "filename": filename,
+                    "size": len(file_bytes),
+                    "folder": str(folder_path),
+                })
+            except Exception as e:
+                self._json({"ok": False, "error": str(e)})
             return
         if path == "/api/server/shutdown":
             import threading

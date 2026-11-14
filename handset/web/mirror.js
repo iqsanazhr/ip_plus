@@ -4627,8 +4627,121 @@ window.addEventListener("message", (e) => {
     } else {
       beginRun();
     }
+  } else if (e.data.type === "start-recording") {
+    startScreenRecording();
+  } else if (e.data.type === "stop-recording") {
+    stopScreenRecording();
   }
 });
+
+// Screen Recording Engine (Canvas 60 FPS Capture & MediaRecorder)
+let _screenMediaRecorder = null;
+let _screenRecordedChunks = [];
+let _screenRecordingStartTime = 0;
+
+function startScreenRecording() {
+  if (_screenMediaRecorder && _screenMediaRecorder.state !== "inactive") {
+    return;
+  }
+  try {
+    const fps = 60;
+    const stream = canvas.captureStream ? canvas.captureStream(fps) : null;
+    if (!stream) {
+      if (window.parent && window.parent !== window) {
+        window.parent.postMessage({ type: "recording-error", error: "Canvas captureStream not supported in this environment" }, "*");
+      }
+      return;
+    }
+
+    let mimeType = "video/webm;codecs=vp9";
+    if (typeof MediaRecorder !== "undefined" && typeof MediaRecorder.isTypeSupported === "function") {
+      if (!MediaRecorder.isTypeSupported(mimeType)) mimeType = "video/webm;codecs=vp8";
+      if (!MediaRecorder.isTypeSupported(mimeType)) mimeType = "video/webm";
+      if (!MediaRecorder.isTypeSupported(mimeType)) mimeType = "video/mp4";
+    }
+
+    _screenRecordedChunks = [];
+    const options = {
+      mimeType: mimeType,
+      videoBitsPerSecond: 8000000 // 8 Mbps high-bitrate clean video
+    };
+
+    try {
+      _screenMediaRecorder = new MediaRecorder(stream, options);
+    } catch (_) {
+      try {
+        _screenMediaRecorder = new MediaRecorder(stream);
+        mimeType = _screenMediaRecorder.mimeType || "video/webm";
+      } catch (err) {
+        if (window.parent && window.parent !== window) {
+          window.parent.postMessage({ type: "recording-error", error: err.message || String(err) }, "*");
+        }
+        return;
+      }
+    }
+
+    _screenMediaRecorder.ondataavailable = (evt) => {
+      if (evt.data && evt.data.size > 0) {
+        _screenRecordedChunks.push(evt.data);
+      }
+    };
+
+    _screenMediaRecorder.onstop = () => {
+      const actualMime = (_screenMediaRecorder && _screenMediaRecorder.mimeType) ? _screenMediaRecorder.mimeType : mimeType;
+      const blob = new Blob(_screenRecordedChunks, { type: actualMime });
+      const durationMs = Date.now() - _screenRecordingStartTime;
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        if (window.parent && window.parent !== window) {
+          window.parent.postMessage({
+            type: "recording-data",
+            data: reader.result,
+            mimeType: actualMime,
+            duration: durationMs
+          }, "*");
+        }
+      };
+      reader.readAsDataURL(blob);
+      _screenRecordedChunks = [];
+      _screenMediaRecorder = null;
+    };
+
+    _screenMediaRecorder.onerror = (err) => {
+      if (window.parent && window.parent !== window) {
+        window.parent.postMessage({ type: "recording-error", error: String(err) }, "*");
+      }
+    };
+
+    _screenRecordingStartTime = Date.now();
+    _screenMediaRecorder.start(1000); // 1s slice for smooth buffer management
+
+    if (window.parent && window.parent !== window) {
+      window.parent.postMessage({ type: "recording-started" }, "*");
+    }
+  } catch (err) {
+    if (window.parent && window.parent !== window) {
+      window.parent.postMessage({ type: "recording-error", error: err.message || String(err) }, "*");
+    }
+  }
+}
+
+function stopScreenRecording() {
+  if (_screenMediaRecorder && _screenMediaRecorder.state !== "inactive") {
+    try {
+      _screenMediaRecorder.stop();
+      if (window.parent && window.parent !== window) {
+        window.parent.postMessage({ type: "recording-stopped" }, "*");
+      }
+    } catch (err) {
+      if (window.parent && window.parent !== window) {
+        window.parent.postMessage({ type: "recording-error", error: err.message || String(err) }, "*");
+      }
+    }
+  }
+}
+
+window._startScreenRecording = startScreenRecording;
+window._stopScreenRecording = stopScreenRecording;
 
 // Tahap 70: Emit mirror-ready on load
 try {

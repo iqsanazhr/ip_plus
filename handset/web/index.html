@@ -54,6 +54,16 @@
             <line x1="17" y1="9" x2="23" y2="15"></line>
           </svg>
         </button>
+        <button type="button" class="icon-btn" id="btn-record-screen" title="Start Screen Recording (Alt+R)" aria-label="Screen Recording">
+          <svg class="record-icon-idle" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="9"/>
+            <circle cx="12" cy="12" r="3.5" fill="currentColor"/>
+          </svg>
+          <svg class="record-icon-active" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display: none;">
+            <rect x="6.5" y="6.5" width="11" height="11" rx="2" fill="#ef4444" stroke="#ef4444"/>
+          </svg>
+          <span class="record-pulse-badge" id="record-pulse-badge" style="display: none;" aria-hidden="true"></span>
+        </button>
         <button type="button" class="icon-btn" id="btn-settings" title="Settings (Open Window)" aria-label="Settings">
           <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="12" r="3"></circle>

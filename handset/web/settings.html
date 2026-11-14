@@ -159,6 +159,20 @@
                   <span class="toggle-slider"></span>
                 </label>
               </div>
+
+              <div class="setting-row">
+                <div class="setting-meta">
+                  <span class="setting-title">Ukuran &amp; Skala Real Phone</span>
+                  <span class="setting-desc">Rasio ukuran tersimpan otomatis saat jendela di-resize sehingga tidak ter-reset saat dipindah atau diputar.</span>
+                </div>
+                <button type="button" class="ctl ctl-sm" id="btn-reset-real-phone-scale" title="Kembalikan ke skala proporsional 100%">
+                  <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px; vertical-align: -1px;" aria-hidden="true">
+                    <polyline points="1 4 1 10 7 10"/>
+                    <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
+                  </svg>
+                  Reset Ukuran Asli
+                </button>
+              </div>
             </div>
           </div>
         </section>
@@ -263,6 +277,23 @@
                   </svg>
                   Save Crop
                 </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="settings-group" data-keywords="recording record screen video capture webm mp4 folder save alt+r 60fps">
+            <h2 class="group-title">Screen Recording (Rekaman Layar)</h2>
+            <div class="settings-card">
+              <div class="setting-row">
+                <div class="setting-meta">
+                  <span class="setting-title">Folder Penyimpanan Video</span>
+                  <span class="setting-desc">Lokasi penyimpanan hasil rekaman video layar iPhone (60 FPS). Shortcut: <strong class="badge-key">Alt+R</strong></span>
+                </div>
+              </div>
+              <div class="recording-folder-box" style="display: flex; gap: 8px; align-items: center; padding: 4px 0 10px;">
+                <input type="text" id="recording-folder-input" class="ctl" style="flex: 1; padding: 7px 10px; font-size: 12px; background: rgba(0,0,0,0.22); border: 1px solid var(--border, rgba(255,255,255,0.12)); border-radius: 6px; color: var(--fg, #fff); font-family: monospace;" readonly aria-label="Recording folder path">
+                <button type="button" class="ctl ctl-sm" id="btn-browse-recording-folder">Browse...</button>
+                <button type="button" class="ctl ctl-sm ctl-accent" id="btn-open-recording-folder">Buka Folder</button>
               </div>
             </div>
           </div>

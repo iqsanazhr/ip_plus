@@ -902,11 +902,102 @@ function applyTheme(theme) {
 }
 
 
-// Tahap 80: Toast Notification is completely disabled (no-op) for 100% clean display
+let _toastTimer = null;
 function showToastNotification(text, duration = 2200) {
-  return;
+  const el = document.getElementById("toast-notification");
+  if (!el) return;
+  el.textContent = text;
+  el.classList.add("is-visible");
+  el.style.pointerEvents = "none";
+  if (_toastTimer) clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(() => {
+    el.classList.remove("is-visible");
+  }, duration);
 }
 window.showToastNotification = showToastNotification;
+
+function showRecordingSavedToast(filename, folder) {
+  const el = document.getElementById("toast-notification");
+  if (!el) return;
+  el.innerHTML = `<span>Rekaman tersimpan: <strong>${filename}</strong></span> <button id="btn-toast-open-folder" style="margin-left: 8px; background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.25); color: #fff; padding: 2px 8px; border-radius: 10px; cursor: pointer; font-size: 11px; font-weight: 600;">Buka Folder</button>`;
+  el.classList.add("is-visible");
+  el.style.pointerEvents = "auto";
+  const btn = el.querySelector("#btn-toast-open-folder");
+  if (btn) {
+    btn.onclick = () => {
+      if (window.pywebview?.api?.open_recording_folder) {
+        window.pywebview.api.open_recording_folder();
+      } else {
+        fetch("/api/recording/open", { method: "POST" }).catch(() => {});
+      }
+      el.classList.remove("is-visible");
+      el.style.pointerEvents = "none";
+    };
+  }
+  if (_toastTimer) clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(() => {
+    el.classList.remove("is-visible");
+    el.style.pointerEvents = "none";
+  }, 5000);
+}
+
+let isRecordingScreen = false;
+
+function updateRecordScreenUI(recording) {
+  isRecordingScreen = Boolean(recording);
+  window.isRecordingScreen = isRecordingScreen;
+  const btn = document.querySelector("#btn-record-screen");
+  if (!btn) return;
+  btn.classList.toggle("is-recording", isRecordingScreen);
+  const idleIcon = btn.querySelector(".record-icon-idle");
+  const activeIcon = btn.querySelector(".record-icon-active");
+  const pulseBadge = btn.querySelector(".record-pulse-badge");
+
+  if (isRecordingScreen) {
+    if (idleIcon) idleIcon.style.display = "none";
+    if (activeIcon) activeIcon.style.display = "";
+    if (pulseBadge) pulseBadge.style.display = "";
+    btn.title = "Stop Screen Recording (Alt+R)";
+  } else {
+    if (idleIcon) idleIcon.style.display = "";
+    if (activeIcon) activeIcon.style.display = "none";
+    if (pulseBadge) pulseBadge.style.display = "none";
+    btn.title = "Start Screen Recording (Alt+R)";
+  }
+}
+
+function toggleScreenRecording() {
+  if (!isRecordingScreen) {
+    screenView?.contentWindow?.postMessage({ type: "start-recording" }, "*");
+  } else {
+    screenView?.contentWindow?.postMessage({ type: "stop-recording" }, "*");
+  }
+}
+window.toggleScreenRecording = toggleScreenRecording;
+
+async function handleSaveRecordingData(base64Data, mimeType) {
+  try {
+    let result = null;
+    if (window.pywebview?.api?.save_recording) {
+      result = await window.pywebview.api.save_recording(base64Data, mimeType);
+    } else {
+      const res = await fetch("/api/recording/save", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ data: base64Data, mimeType: mimeType })
+      });
+      if (res.ok) result = await res.json();
+    }
+
+    if (result && result.success) {
+      showRecordingSavedToast(result.filename || "video", result.folder);
+    } else {
+      showToastNotification("Gagal menyimpan rekaman: " + (result?.error || "Error"), 3000);
+    }
+  } catch (err) {
+    showToastNotification("Error menyimpan rekaman: " + err.message, 3000);
+  }
+}
 
 function updateRotateModeBadge(isOn) {
   const badge = document.querySelector("#rotate-mode-badge");
@@ -1939,6 +2030,7 @@ function initWindowAndBarControls() {
   stopScreen?.addEventListener("click", () => stopMirror());
   restartScreen?.addEventListener("click", () => restartMirror());
   btnRotateLandscape?.addEventListener("click", () => toggleLandscapeMode());
+  document.querySelector("#btn-record-screen")?.addEventListener("click", () => toggleScreenRecording());
 
   window.addEventListener("keydown", (e) => {
     if (e.key === "Escape" && !controlPane?.hidden) {
@@ -3066,6 +3158,25 @@ window.addEventListener("message", (e) => {
   }
   if (e.data && e.data.type === "scale-window") {
     window.pywebview?.api?.scale_window_ratio?.(e.data.delta || 0);
+  }
+  if (e.data && e.data.type === "trigger-toggle-recording") {
+    toggleScreenRecording();
+  }
+  if (e.data && e.data.type === "recording-started") {
+    updateRecordScreenUI(true);
+    showToastNotification("Mulai merekam layar...", 1800);
+  }
+  if (e.data && e.data.type === "recording-stopped") {
+    updateRecordScreenUI(false);
+    showToastNotification("Menyimpan file rekaman...", 2000);
+  }
+  if (e.data && e.data.type === "recording-data") {
+    updateRecordScreenUI(false);
+    handleSaveRecordingData(e.data.data, e.data.mimeType);
+  }
+  if (e.data && e.data.type === "recording-error") {
+    updateRecordScreenUI(false);
+    showToastNotification("Gagal merekam: " + (e.data.error || "Unknown"), 3200);
   }
 });
 

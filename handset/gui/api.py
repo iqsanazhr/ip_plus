@@ -10,6 +10,7 @@ import sys
 import threading
 import time
 import urllib.request
+from pathlib import Path
 from typing import Any
 
 from .config import (
@@ -51,6 +52,22 @@ class WindowApi:
         self._saved_window_pos: tuple[int, int] | None = None
         self._saved_portrait_phys_size: tuple[int, int] | None = None
         self._saved_landscape_phys_size: tuple[int, int] | None = None
+
+        # Real Phone scale ratio & dimension persistence
+        self._real_phone_scale_ratio: float = 1.0
+        self._real_phone_portrait_height: int = 820
+        self._real_phone_landscape_height: int = 430
+        try:
+            from handset.server import load_user_settings
+            st = load_user_settings()
+            if "realPhoneScaleRatio" in st:
+                self._real_phone_scale_ratio = float(st.get("realPhoneScaleRatio", 1.0))
+            if "realPhonePortraitHeight" in st:
+                self._real_phone_portrait_height = int(st.get("realPhonePortraitHeight", 820))
+            if "realPhoneLandscapeHeight" in st:
+                self._real_phone_landscape_height = int(st.get("realPhoneLandscapeHeight", 430))
+        except Exception:
+            pass
 
     def _get_window_dpi_scale(self, hwnd: int | None = None) -> float:
         """Accurately query DPI scale factor."""
@@ -241,6 +258,26 @@ class WindowApi:
                     inner_h = max(100, h - bezel)
                     inner_w = int(round(inner_h * asp))
                     w = inner_w + bezel
+
+                if is_land:
+                    self._real_phone_landscape_height = h
+                    self._real_phone_scale_ratio = max(0.3, min(3.0, round((h - bezel) / (430 - bezel), 4)))
+                    self._real_phone_portrait_height = int(round((820 - bezel) * self._real_phone_scale_ratio)) + bezel
+                else:
+                    self._real_phone_portrait_height = h
+                    self._real_phone_scale_ratio = max(0.3, min(3.0, round((h - bezel) / (820 - bezel), 4)))
+                    self._real_phone_landscape_height = int(round((430 - bezel) * self._real_phone_scale_ratio)) + bezel
+
+                if is_final:
+                    try:
+                        from handset.server import save_user_settings
+                        save_user_settings({
+                            "realPhoneScaleRatio": self._real_phone_scale_ratio,
+                            "realPhonePortraitHeight": self._real_phone_portrait_height,
+                            "realPhoneLandscapeHeight": self._real_phone_landscape_height,
+                        })
+                    except Exception:
+                        pass
             else:
                 w = max(240, min(2560, int(round(width))))
                 h = max(320, min(2560, int(round(height))))
@@ -296,6 +333,25 @@ class WindowApi:
                     inner_h = max(100, new_h - bezel)
                     inner_w = int(round(inner_h * asp))
                     new_w = inner_w + bezel
+
+                if is_land:
+                    self._real_phone_landscape_height = new_h
+                    self._real_phone_scale_ratio = max(0.3, min(3.0, round((new_h - bezel) / (430 - bezel), 4)))
+                    self._real_phone_portrait_height = int(round((820 - bezel) * self._real_phone_scale_ratio)) + bezel
+                else:
+                    self._real_phone_portrait_height = new_h
+                    self._real_phone_scale_ratio = max(0.3, min(3.0, round((new_h - bezel) / (820 - bezel), 4)))
+                    self._real_phone_landscape_height = int(round((430 - bezel) * self._real_phone_scale_ratio)) + bezel
+
+                try:
+                    from handset.server import save_user_settings
+                    save_user_settings({
+                        "realPhoneScaleRatio": self._real_phone_scale_ratio,
+                        "realPhonePortraitHeight": self._real_phone_portrait_height,
+                        "realPhoneLandscapeHeight": self._real_phone_landscape_height,
+                    })
+                except Exception:
+                    pass
             else:
                 new_w = max(240, min(1600, int(round(cur_w * scale))))
                 new_h = max(360, min(2400, int(round(cur_h * scale))))
@@ -550,7 +606,11 @@ class WindowApi:
             is_land = asp > 1.0
             self._is_landscape = is_land
             self._last_aspect = asp
-            target_w, target_h = calculate_real_phone_dimensions(asp, is_land)
+
+            saved_h = self._real_phone_landscape_height if is_land else self._real_phone_portrait_height
+            target_w, target_h = calculate_real_phone_dimensions(
+                asp, is_land, scale_ratio=self._real_phone_scale_ratio, custom_height=saved_h
+            )
 
             try:
                 self._window.resize(target_w, target_h)
@@ -558,7 +618,14 @@ class WindowApi:
                 pass
             self._apply_real_phone_dwm(True)
             self._schedule_reapply_corners()
-            return {"ok": True, "real_phone": True, "landscape": is_land, "width": target_w, "height": target_h}
+            return {
+                "ok": True,
+                "real_phone": True,
+                "landscape": is_land,
+                "width": target_w,
+                "height": target_h,
+                "scale_ratio": self._real_phone_scale_ratio,
+            }
         else:
             if self._is_landscape:
                 target_w = LANDSCAPE_WIDTH_NO_DRAWER
@@ -621,3 +688,129 @@ class WindowApi:
 
     def wipe_privacy_data(self):
         return {"ok": True, "wiped": True}
+
+    def get_real_phone_scale(self) -> dict:
+        """Return the current persistent Real Phone scale ratio and heights."""
+        return {
+            "ok": True,
+            "scale_ratio": getattr(self, "_real_phone_scale_ratio", 1.0),
+            "portrait_height": getattr(self, "_real_phone_portrait_height", 820),
+            "landscape_height": getattr(self, "_real_phone_landscape_height", 430),
+        }
+
+    def reset_real_phone_scale(self) -> dict:
+        """Reset Real Phone scale ratio back to 100% (default 820px portrait / 430px landscape)."""
+        self._real_phone_scale_ratio = 1.0
+        self._real_phone_portrait_height = 820
+        self._real_phone_landscape_height = 430
+        try:
+            from handset.server import save_user_settings
+            save_user_settings({
+                "realPhoneScaleRatio": 1.0,
+                "realPhonePortraitHeight": 820,
+                "realPhoneLandscapeHeight": 430,
+            })
+        except Exception:
+            pass
+
+        if getattr(self, "_is_real_phone", False):
+            asp = getattr(self, "_last_aspect", 1125.0 / 2436.0)
+            return self.set_real_phone_mode(True, asp)
+        return {"ok": True, "scale_ratio": 1.0}
+
+    def get_recording_folder(self) -> dict:
+        """Return current configured screen recording folder."""
+        try:
+            from handset.server import load_user_settings
+            st = load_user_settings()
+            folder = st.get("recordingFolder")
+            if not folder:
+                folder = str(Path.home() / "Videos" / "ip+")
+            return {"ok": True, "folder": str(folder)}
+        except Exception as e:
+            return {"ok": False, "error": str(e)}
+
+    def choose_recording_folder(self) -> dict:
+        """Open native Windows folder picker dialog to select recording destination folder."""
+        folder = None
+        try:
+            if self._window:
+                import webview
+                res = self._window.create_file_dialog(webview.FOLDER_DIALOG)
+                if res and len(res) > 0:
+                    folder = res[0]
+        except Exception:
+            pass
+
+        if not folder and sys.platform == "win32":
+            try:
+                import clr
+                clr.AddReference("System.Windows.Forms")
+                from System.Windows.Forms import FolderBrowserDialog, DialogResult
+                fbd = FolderBrowserDialog()
+                fbd.Description = "Pilih Folder Penyimpanan Rekaman Layar ip+"
+                if fbd.ShowDialog() == DialogResult.OK:
+                    folder = str(fbd.SelectedPath)
+            except Exception:
+                pass
+
+        if folder:
+            try:
+                from handset.server import save_user_settings
+                folder_str = str(Path(folder).resolve())
+                os.makedirs(folder_str, exist_ok=True)
+                save_user_settings({"recordingFolder": folder_str})
+                return {"ok": True, "folder": folder_str}
+            except Exception as e:
+                return {"ok": False, "error": str(e)}
+
+        return {"ok": False, "cancelled": True}
+
+    def open_recording_folder(self) -> dict:
+        """Open the recording destination directory in Windows File Explorer."""
+        try:
+            from handset.server import load_user_settings
+            st = load_user_settings()
+            folder = st.get("recordingFolder") or str(Path.home() / "Videos" / "ip+")
+            os.makedirs(folder, exist_ok=True)
+            if sys.platform == "win32":
+                os.startfile(folder)
+            return {"ok": True, "folder": folder}
+        except Exception as e:
+            return {"ok": False, "error": str(e)}
+
+    def save_recording(self, base64_data: str, mime_type: str = "video/webm") -> dict:
+        """Save captured canvas video blob to the configured recording folder."""
+        if not base64_data:
+            return {"ok": False, "error": "No data"}
+        try:
+            import base64
+            from datetime import datetime
+            from handset.server import load_user_settings
+
+            st = load_user_settings()
+            folder = st.get("recordingFolder") or str(Path.home() / "Videos" / "ip+")
+            folder_path = Path(folder)
+            folder_path.mkdir(parents=True, exist_ok=True)
+
+            ext = ".mp4" if "mp4" in str(mime_type).lower() else ".webm"
+            ts = datetime.now().strftime("%Y%m%d_%H%M%S")
+            filename = f"ip+_recording_{ts}{ext}"
+            file_path = folder_path / filename
+
+            clean_data = str(base64_data)
+            if "," in clean_data:
+                clean_data = clean_data.split(",", 1)[1]
+            file_bytes = base64.b64decode(clean_data)
+            file_path.write_bytes(file_bytes)
+
+            return {
+                "ok": True,
+                "success": True,
+                "path": str(file_path),
+                "filename": filename,
+                "size": len(file_bytes),
+                "folder": str(folder_path),
+            }
+        except Exception as e:
+            return {"ok": False, "error": str(e)}
