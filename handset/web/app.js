@@ -1998,11 +1998,24 @@ function initDeviceActionControls() {
   // screenEmpty already declared above
   const placeholder = screenEmpty;
   screenEmpty?.addEventListener("click", () => {
+    if (window._driverReady === false) {
+      triggerInstallAppleDriver();
+      return;
+    }
     if (!showScreen.disabled && !showScreen.classList.contains("is-disconnect")) showPhone();
   });
   placeholderStartBtn?.addEventListener("click", (e) => {
     e.stopPropagation();
+    if (window._driverReady === false) {
+      triggerInstallAppleDriver();
+      return;
+    }
     if (!showScreen.disabled && !showScreen.classList.contains("is-disconnect")) showPhone();
+  });
+  pillConnection?.addEventListener("click", () => {
+    if (window._driverReady === false) {
+      triggerInstallAppleDriver();
+    }
   });
 
   refresh?.addEventListener("click", () => load());
@@ -2250,6 +2263,61 @@ async function load() {
   }
 }
 
+let _driverInstallInProgress = false;
+
+async function triggerInstallAppleDriver() {
+  if (_driverInstallInProgress) return;
+  _driverInstallInProgress = true;
+  showToastNotification("Mengunduh & memasang layanan USB Apple...", 4500);
+  if (placeholderStartBtn) {
+    placeholderStartBtn.disabled = true;
+    if (placeholderStartLabel) placeholderStartLabel.textContent = "Memasang Driver Apple...";
+  }
+
+  try {
+    let res = null;
+    if (window.pywebview?.api?.install_apple_driver) {
+      res = await window.pywebview.api.install_apple_driver("auto");
+    } else {
+      const resp = await fetch("/api/driver/install", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ source: "auto" })
+      });
+      if (resp.ok) res = await resp.json();
+    }
+  } catch (err) {
+    console.warn("Install driver trigger error:", err);
+  }
+
+  let attempts = 0;
+  const pollInterval = setInterval(async () => {
+    attempts++;
+    try {
+      const s = await getJson("/api/driver/status");
+      if (s && s.message && attempts % 3 === 0) {
+        showToastNotification(s.message, 3000);
+      }
+      const devState = await getJson("/api/devices");
+      if (devState && devState.driver && devState.driver.ready) {
+        clearInterval(pollInterval);
+        _driverInstallInProgress = false;
+        window._driverReady = true;
+        showToastNotification("Driver Apple berhasil dipasang! Hubungkan iPhone Anda.", 4500);
+        await load();
+        return;
+      }
+    } catch (_) {}
+
+    if (attempts > 75) {
+      clearInterval(pollInterval);
+      _driverInstallInProgress = false;
+      showToastNotification("Waktu pemasangan habis. Buka Microsoft Store untuk Apple Devices.", 4000);
+      await load();
+    }
+  }, 2500);
+}
+
 function renderPills(state) {
   const driver = state.driver || {};
   const connected = (state.devices || []).length > 0;
@@ -2303,6 +2371,7 @@ function setPill(el, text, tone) {
 function renderStatus(state) {
   const library = state.library || {};
   const driver = state.driver || {};
+  window._driverReady = !!driver.ready;
   statusList.replaceChildren(
     ...row("Client", library.ready ? "ready" : "missing", library.ready),
     ...row("USB service", driver.ready ? "running" : "missing", driver.ready),
@@ -2310,7 +2379,11 @@ function renderStatus(state) {
   );
   const connected = (state.devices || []).length > 0;
   if (placeholderStartBtn) {
-    if (connected && state.developerMode !== false) {
+    if (!driver.ready) {
+      placeholderStartBtn.disabled = _driverInstallInProgress;
+      if (placeholderStartLabel) placeholderStartLabel.textContent = _driverInstallInProgress ? "Memasang Driver Apple..." : "⚡ Pasang Driver Apple Otomatis";
+      if (placeholderHint) placeholderHint.textContent = "Driver USB Apple belum terpasang di PC ini. Klik tombol di atas untuk memasang otomatis via Microsoft Store / Apple CDN.";
+    } else if (connected && state.developerMode !== false) {
       placeholderStartBtn.disabled = false;
       if (placeholderStartLabel) placeholderStartLabel.textContent = "Start Mirroring";
       if (placeholderHint) placeholderHint.textContent = "iPhone terhubung via USB. Klik tombol untuk mulai mirroring.";

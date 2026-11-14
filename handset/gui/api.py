@@ -816,3 +816,19 @@ class WindowApi:
             }
         except Exception as e:
             return {"ok": False, "error": str(e)}
+
+    def install_apple_driver(self, source: str = "auto") -> dict:
+        """Trigger automated installation of Apple USB drivers via winget / Microsoft Store."""
+        try:
+            from handset.driver_installer import trigger_apple_driver_install
+            return trigger_apple_driver_install(preferred_source=str(source or "auto"))
+        except Exception as e:
+            return {"ok": False, "error": str(e)}
+
+    def get_apple_driver_install_status(self) -> dict:
+        """Get the current progress/status of Apple USB driver installation."""
+        try:
+            from handset.driver_installer import get_driver_install_status
+            return get_driver_install_status()
+        except Exception as e:
+            return {"ok": False, "error": str(e)}

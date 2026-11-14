@@ -83,6 +83,15 @@ if !ERRORLEVEL! NEQ 0 goto :SETUP_FAILED
 "%~dp0venv\Scripts\python.exe" -c "import webview, pymobiledevice3" >nul 2>&1
 if !ERRORLEVEL! NEQ 0 goto :SETUP_FAILED
 
+:: Check and auto-install Apple USB service if missing
+sc query "Apple Mobile Device Service" >nul 2>&1
+if !ERRORLEVEL! NEQ 0 (
+    echo.
+    echo [INFO] Layanan USB Apple belum terdeteksi di Windows ini.
+    echo        Mengunduh ^& memasang Apple Mobile Device Support secara otomatis...
+    winget install --id Apple.AppleMobileDeviceSupport -e --silent --accept-package-agreements --accept-source-agreements >nul 2>&1
+)
+
 echo.
 echo ==============================================================
 echo   [SUKSES] Setup selesai! Membuka ip+ sekarang...

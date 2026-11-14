@@ -760,6 +760,10 @@ class Handler(BaseHTTPRequestHandler):
             from handset.screen import _STEALTH_DIM_ACTIVE
             self._json({"ok": True, "stealth": _STEALTH_DIM_ACTIVE})
             return
+        if path in ("/api/driver/status", "/api/driver/install/status"):
+            from handset.driver_installer import get_driver_install_status
+            self._json(get_driver_install_status())
+            return
         if path in ("/api/ocr/clear-chunks", "/api/keyboard/clear-chunks"):
             clear_recent_long_ocr_chunks()
             self._json({"ok": True, "action": "clear_chunks"})
@@ -808,6 +812,12 @@ class Handler(BaseHTTPRequestHandler):
         if not isinstance(payload, dict):
             payload = {}
 
+        if path == "/api/driver/install":
+            from handset.driver_installer import trigger_apple_driver_install
+            source = str(payload.get("source", "auto"))
+            res = trigger_apple_driver_install(preferred_source=source)
+            self._json(res)
+            return
         if path == "/api/settings":
             saved = save_user_settings(payload)
             self._json({"ok": True, "settings": saved})

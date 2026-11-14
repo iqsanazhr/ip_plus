@@ -39,6 +39,7 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
+Name: "installappledriver"; Description: "Pasang otomatis Apple Mobile Device Support (Driver USB Apple resmi dari Apple Inc.)"; GroupDescription: "Layanan Perangkat Keras Apple:"; Flags: checkedonce; Check: not IsAppleDriverServiceRunning
 
 [Files]
 ; Distribute all built application files from the standalone release (No Python required)
@@ -50,6 +51,7 @@ Name: "{group}\{cm:UninstallProgram,{#MyAppName}}"; Filename: "{uninstallexe}"
 Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; IconFilename: "{app}\assets\ip_plus.ico"; Tasks: desktopicon
 
 [Run]
+Filename: "powershell.exe"; Parameters: "-NoProfile -ExecutionPolicy Bypass -Command ""Start-Process winget -ArgumentList 'install --id Apple.AppleMobileDeviceSupport -e --silent --accept-package-agreements --accept-source-agreements' -Wait -WindowStyle Hidden -ErrorAction SilentlyContinue"""; StatusMsg: "Memeriksa dan memasang driver USB Apple resmi..."; Tasks: installappledriver; Flags: runhidden
 Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
 
 [UninstallDelete]
@@ -57,3 +59,11 @@ Type: filesandordirs; Name: "{app}\.pane_webview_storage"
 Type: files; Name: "{app}\user_settings.json"
 Type: files; Name: "{app}\typed_history.json"
 Type: files; Name: "{app}\debug_metrics.json"
+
+[Code]
+function IsAppleDriverServiceRunning(): Boolean;
+var
+  ResultCode: Integer;
+begin
+  Result := Exec('sc.exe', 'query "Apple Mobile Device Service"', '', SW_HIDE, ewWaitUntilTerminated, ResultCode) and (ResultCode = 0);
+end;
